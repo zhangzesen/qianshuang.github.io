@@ -11,9 +11,7 @@ tags:								#标签
     - 深度学习
 ---
 
-<div>
-<iframe height=498 width=510 src='http://player.youku.com/embed/XMzcyNDkyMTkyNA==' frameborder=0 'allowfullscreen'></iframe>
-</div>
+<embed src='http://player.youku.com/player.php/sid/XMzcyNDkyMTkyNA==/v.swf' allowFullScreen='true' quality='high' width='480' height='400' align='middle' allowScriptAccess='always' type='application/x-shockwave-flash'></embed>
 
 # 自我介绍
 
@@ -66,8 +64,8 @@ tags:								#标签
 # 社群
 
 - QQ交流群
-	![562929489](../img/qq_ewm.png)
+	![562929489](/img/qq_ewm.png)
 - 微信交流群
-	![562929489](../img/wx_ewm.png)
+	![562929489](/img/wx_ewm.png)
 - 微信公众号
-	![562929489](../img/wxgzh_ewm.png)
+	![562929489](/img/wxgzh_ewm.png)
