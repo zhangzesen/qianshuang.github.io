@@ -11,6 +11,8 @@ tags:								#标签
     - 深度学习
 ---
 
+<iframe height=498 width=510 src='http://player.youku.com/embed/XNzkzMjgzNzUy' frameborder=0 'allowfullscreen'></iframe>
+
 # 自我介绍
 
 大家好，我是<strong>子颢</strong>，一个普通的机器学习和深度学习算法开发程序猿。我12年毕业于武汉大学，大学的专业是软件工程，毕业后先后去了迅雷和百度从事数据开发方面的工作，16年到18年在阿里巴巴从事机器学习和深度学习相关的算法研究，18年9月份将加入腾讯继续在NLP领域深耕。
