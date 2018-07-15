@@ -15,6 +15,9 @@ tags:								#标签
 <div>
 	<iframe height=498 width=510 src="http://player.youku.com/embed/XMzcyNDkyMTkyNA==" frameborder=0 "allowfullscreen"></iframe>
 </div>
+<video id="video" controls="" preload="none" poster="http://media.w3.org/2010/05/sintel/poster.png">
+  <source id="mp4" src="http://player.youku.com/player.php/sid/XMzcyNDkyMTkyNA==/v.swf" type="video/swf">
+</video>
 
 # 自我介绍
 
