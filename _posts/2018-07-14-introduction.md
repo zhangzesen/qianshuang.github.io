@@ -11,7 +11,7 @@ tags:								#标签
     - 深度学习
 ---
 
-<embed src='http://player.youku.com/player.php/sid/XMzcyNDkyMTkyNA==/v.swf' allowFullScreen='true' quality='high' width='480' height='400' align='middle' allowScriptAccess='always' type='application/x-shockwave-flash'></embed>
+[![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](http://player.youku.com/player.php/sid/XMzcyNDkyMTkyNA==/v.swf)
 
 # 自我介绍
 
