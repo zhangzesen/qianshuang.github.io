@@ -60,3 +60,12 @@ tags:								#标签
 	- GAN 生成对抗网络
 - 强化学习
 	- seqGAN 基于GAN和强化学习的文本生成模型 
+
+<h5>QQ交流群</h5>
+<img src="/img/qq_ewm.png" />
+
+<h5>微信交流群</h5>
+<img src="/img/wx_ewm.png" />
+
+<h5>微信公众号</h5>
+<img src="/img/wxgzh_ewm.png" />
