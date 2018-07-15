@@ -11,7 +11,10 @@ tags:								#标签
     - 深度学习
 ---
 
-[![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](http://player.youku.com/player.php/sid/XMzcyNDkyMTkyNA==/v.swf)
+<iframe height=498 width=510 src="http://player.youku.com/embed/XMzcyNDkyMTkyNA==" frameborder=0 "allowfullscreen"></iframe>
+<div>
+	<iframe height=498 width=510 src="http://player.youku.com/embed/XMzcyNDkyMTkyNA==" frameborder=0 "allowfullscreen"></iframe>
+</div>
 
 # 自我介绍
 
