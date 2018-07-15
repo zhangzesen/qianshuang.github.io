@@ -11,7 +11,7 @@ tags:								#标签
     - 深度学习
 ---
 
-<iframe height=498 width=510 src='http://player.youku.com/embed/XNzkzMjgzNzUy' frameborder=0 'allowfullscreen'></iframe>
+<iframe height=498 width=510 src='http://player.youku.com/embed/XMzcyNDkyMTkyNA==' frameborder=0 'allowfullscreen'></iframe>
 
 # 自我介绍
 
