@@ -11,7 +11,9 @@ tags:								#标签
     - 深度学习
 ---
 
+<div>
 <iframe height=498 width=510 src='http://player.youku.com/embed/XMzcyNDkyMTkyNA==' frameborder=0 'allowfullscreen'></iframe>
+</div>
 
 # 自我介绍
 
@@ -61,11 +63,11 @@ tags:								#标签
 - 强化学习
 	- seqGAN 基于GAN和强化学习的文本生成模型 
 
-<h5>QQ交流群</h5>
-<img src="/img/qq_ewm.png" />
+# 社群
 
-<h5>微信交流群</h5>
-<img src="/img/wx_ewm.png" />
-
-<h5>微信公众号</h5>
-<img src="/img/wxgzh_ewm.png" />
+- QQ交流群
+	![562929489](../img/qq_ewm.png)
+- 微信交流群
+	![562929489](../img/wx_ewm.png)
+- 微信公众号
+	![562929489](../img/wxgzh_ewm.png)

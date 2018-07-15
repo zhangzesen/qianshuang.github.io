@@ -52,3 +52,5 @@
 	![562929489](img/qq_ewm.png)
 - 微信交流群
 	![562929489](img/wx_ewm.png)
+- 微信公众号
+	![562929489](img/wxgzh_ewm.png)
