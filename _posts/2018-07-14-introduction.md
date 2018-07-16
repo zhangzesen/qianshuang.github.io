@@ -11,13 +11,10 @@ tags:								#标签
     - 深度学习
 ---
 
-<iframe height=498 width=510 src="http://player.youku.com/embed/XMzcyNDkyMTkyNA==" frameborder=0 "allowfullscreen"></iframe>
-<div>
-	<iframe height=498 width=510 src="http://player.youku.com/embed/XMzcyNDkyMTkyNA==" frameborder=0 "allowfullscreen"></iframe>
-</div>
-<video id="video" controls="" preload="none" poster="http://media.w3.org/2010/05/sintel/poster.png">
-  <source id="mp4" src="http://player.youku.com/player.php/sid/XMzcyNDkyMTkyNA==/v.swf" type="video/swf">
-</video>
+# 视频
+
+- 在线观看 <a href="https://v.youku.com/v_show/id_XMzcyNDkyMTkyNA==.html?spm=a2h3j.8428770.3416059.1">https://v.youku.com/v_show/id_XMzcyNDkyMTkyNA==.html?spm=a2h3j.8428770.3416059.1</a>
+- 百度网盘 <a href="https://pan.baidu.com/s/1jPlLafsc-Ed5_6NJvD2y_g">https://pan.baidu.com/s/1jPlLafsc-Ed5_6NJvD2y_g</a>
 
 # 自我介绍
 
