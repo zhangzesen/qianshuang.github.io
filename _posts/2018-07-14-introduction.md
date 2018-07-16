@@ -11,10 +11,11 @@ tags:								#标签
     - 深度学习
 ---
 
-# 视频
+# 视频地址
 
-- 在线观看 <a href="https://v.youku.com/v_show/id_XMzcyNDkyMTkyNA==.html?spm=a2h3j.8428770.3416059.1">https://v.youku.com/v_show/id_XMzcyNDkyMTkyNA==.html?spm=a2h3j.8428770.3416059.1</a>
-- 百度网盘 <a href="https://pan.baidu.com/s/1jPlLafsc-Ed5_6NJvD2y_g">https://pan.baidu.com/s/1jPlLafsc-Ed5_6NJvD2y_g</a>
+在线观看 <a href="https://v.youku.com/v_show/id_XMzcyNDkyMTkyNA==.html?spm=a2h3j.8428770.3416059.1" target="_blank">https://v.youku.com/v_show/id_XMzcyNDkyMTkyNA==.html?spm=a2h3j.8428770.3416059.1</a>
+
+百度网盘 <a href="https://pan.baidu.com/s/1jPlLafsc-Ed5_6NJvD2y_g" target="_blank">https://pan.baidu.com/s/1jPlLafsc-Ed5_6NJvD2y_g</a>
 
 # 自我介绍
 
