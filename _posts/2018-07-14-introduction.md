@@ -1,6 +1,6 @@
 ---
 layout:     post   				    # 使用的布局（不需要改）
-title:      自我介绍以及课程目录 				# 标题 
+title:      00.0 自我介绍以及课程目录 				# 标题 
 # subtitle:   Hello World, Hello Blog # 副标题
 date:       2018-07-14 				# 时间
 author:     子颢 						# 作者
