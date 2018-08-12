@@ -29,6 +29,7 @@ tags:								#标签
 | 3 | 6.5 |
 
 根据训练样本训练一个线性回归模型？
+
 大家回忆一下AdaBoost和GDBT的损失函数：AdaBoost为指数损失，GDBT为平方损失，逻辑回归是对数损失。
 
 # 梯度下降
@@ -42,6 +43,7 @@ tags:								#标签
 ![supplement](/img/supplement-07.png)
 
 梯度下降一般有三种方式：批量梯度下降（Batch Gradient Descent）、随机梯度下降（Stochastic Gradient Descent）、Mini-batch Gradient Descent。
+
 批量梯度下降要求每次计算使用所有的训练数据来更新模型参数。所以当训练数据量很大时迭代速度会非常慢，甚至内存溢出，优点是每次找的都是全局最优点。
 ![supplement](/img/supplement-08.png)
 随机梯度下降每次从训练样本中随机采样一部分用来更新模型参数，并且每次更新时，只使用一个样本。所以模型的迭代速度很快，即使当训练数据量很庞大时，也能完成训练，并且随机采样有助于越过局部最优从而最终找到全局最优点，但是同样因为是随机，可能导致不能很平滑的到达局部最优，而是摇摇晃晃额到达。通常的解决方式是通过learning rate decay，即周期性的缩小learning rate。
