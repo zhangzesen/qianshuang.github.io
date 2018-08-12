@@ -21,11 +21,13 @@ tags:								#标签
 ![supplement](/img/supplement-03.png)
 ![supplement](/img/supplement-04.png)
 所以，线性回归先假定特证满足线性关系，然后根据给定的训练数据，求出使损失函数（均方误差）最小时的参数k和b的解析解，这就是线性回归的训练过程。下面我们举个实际的例子，看看线性回归模型到底是怎样进行训练求出参数k和b的。我们假设商品的销售量和商品单价满足线性关系：y=kx+b，x为商品的单价，y代表商品的销售量。现在我们收集到的线上样本如下：
+
 | 单价x | 销量y |
 | ------ | ------ |
 | 1 | 2.5 |
 | 2 | 5.5 |
 | 3 | 6.5 |
+
 根据训练样本训练一个线性回归模型？
 大家回忆一下AdaBoost和GDBT的损失函数：AdaBoost为指数损失，GDBT为平方损失，逻辑回归是对数损失。
 
@@ -59,7 +61,7 @@ Mini-batch Gradient Descent综合了批量和随机梯度下降的有点，即�
 # 正则化
 
 有一种特殊的线性回归叫polynomial regression，多项式回归，它将输入特征乘n次方作为新的特征训练线性回归模型，即将y = kx + b变换为y = k2*x^2 + k1*x + b，所以这种方式既可以拟合线性模型也可以拟合非线性模型。那么这个n到底取多少合适呢？一旦过大就会出现过拟合现象：
-![supplement](/img/supplement-10.png)
+![supplement](/img/supplement-10.jpg)
 正则化是用来解决过拟合的重要手段之一，可以用来约束模型的参数值不至于过大，主要有三种方式：Ridge Regression，即通常所说的L2正则；Lasso Regression，即L1正则；Elastic Net，是Ridge和Lasso的综合。
 ![supplement](/img/supplement-11.png)
 ![supplement](/img/supplement-12.png)
