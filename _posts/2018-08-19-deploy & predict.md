@@ -12,8 +12,6 @@ tags:								#标签
     - predict
 ---
 
-# 算法原理
-
 到目前为止，我们训练的传统机器学习模型都只能进行本地预测（本地调用test方法），那么怎么样把我们的模型部署到线上，然后做在线实时预测呢？
 1. 我们的模型实际上就是一个y = f(x)函数，x是特征数据，y是预测结果。我们训练模型的目的就是为了得到f(x)函数的参数；
 2. 训练完成后需要对参数进行序列化存储，生成模型文件，这一步叫做模型的导出；
@@ -22,7 +20,7 @@ tags:								#标签
 所有的机器学习包括深度学习框架训练的模型都是按照以上四个步骤进行部署和在线预测的，只是模型文件的不同。
 
 因为scikit-learn已经成为Python最重要的机器学习库（没有之一），并且到目前为止我们所有的机器学习模型都是通过它训练的，下面主要介绍通过sklearn训练的模型的部署方式：
-1. 模型训练完成后，直接将模型导出为PMML(Predictive Model Markup Language)文件。注：PMML是数据挖掘的一种通用的规范，它用统一的XML格式来描述我们生成的机器学习模型，无论你的模型是sklearn,R还是Spark MLlib生成的，我们都可以使用相应的方法将其转化为PMML。关于PMML内部格式细节，请参考<a href="http://dmg.org/pmml/v4-3/GeneralStructure.html" target="_blank">PMML</a>
+1. 模型训练完成后，直接将模型导出为PMML(Predictive Model Markup Language)文件。注：PMML是数据挖掘的一种通用的规范，它用统一的XML格式来描述我们生成的机器学习模型，无论你的模型是sklearn,R还是Spark MLlib生成的，我们都可以使用相应的方法将其转化为PMML。关于PMML内部格式细节，请参考 <a href="http://dmg.org/pmml/v4-3/GeneralStructure.html" target="_blank">PMML</a>
 ```
 clf = tree.DecisionTreeClassifier()
 pipeline = PMMLPipeline([("classifier", clf)])
@@ -44,6 +42,7 @@ joblib.dump(pipeline, "pipeline.pkl.z", compress = 9)
 java -jar target/jpmml-sklearn-executable-1.5-SNAPSHOT.jar --pkl-input pipeline.pkl.z --pmml-output pipeline.pmml
 ```
 2. 模型加载、部署、服务：实际中，一般将服务封装为Java Web应用或RPC服务，在应用内部加载模型，部署服务。注：JPMML是一个强大的包含模型导出、加载、部署等一条蛇服务的工具包。
+
 ```
 <dependency>
     <groupId>org.jpmml</groupId>
@@ -56,6 +55,7 @@ java -jar target/jpmml-sklearn-executable-1.5-SNAPSHOT.jar --pkl-input pipeline.
     <version>1.4.1</version>
 </dependency>
 ```
+
 ```
 private Evaluator loadPmml(){
     InputStream is = new FileInputStream("D:/demo.pmml");
@@ -105,8 +105,8 @@ PMML的确是跨平台的利器，但是也会存在一些问题：
 4. 对于超大模型，比如大规模的集成学习模型（xgboost、随机森林等）以及神经网络，生成的PMML文件很容易得到几个G，甚至上T，这时使用PMML文件加载预测就不太合适了，此时推荐为模型建立一个专有的环境，就没有必要去考虑跨平台了。
 
 更多参考：
-<a href="http://www.naodongopen.com/918.html" target="_blank">Java跨语言调用Python sklearn模型</a>
-<a href="https://github.com/jpmml" target="_blank">jpmml</a>
+- <a href="http://www.naodongopen.com/918.html" target="_blank">Java跨语言调用Python sklearn模型</a>
+- <a href="https://github.com/jpmml" target="_blank">jpmml</a>
 
 
 # 社群
