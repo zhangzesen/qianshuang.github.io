@@ -42,7 +42,6 @@ joblib.dump(pipeline, "pipeline.pkl.z", compress = 9)
 java -jar target/jpmml-sklearn-executable-1.5-SNAPSHOT.jar --pkl-input pipeline.pkl.z --pmml-output pipeline.pmml
 ```
 2. 模型加载、部署、服务：实际中，一般将服务封装为Java Web应用或RPC服务，在应用内部加载模型，部署服务。注：JPMML是一个强大的包含模型导出、加载、部署等一条蛇服务的工具包。
-
 ```
 <dependency>
     <groupId>org.jpmml</groupId>
@@ -54,9 +53,7 @@ java -jar target/jpmml-sklearn-executable-1.5-SNAPSHOT.jar --pkl-input pipeline.
     <artifactId>pmml-evaluator-extension</artifactId>
     <version>1.4.1</version>
 </dependency>
-```
 
-```
 private Evaluator loadPmml(){
     InputStream is = new FileInputStream("D:/demo.pmml");
     PMML pmml = org.jpmml.model.PMMLUtil.unmarshal(is);
