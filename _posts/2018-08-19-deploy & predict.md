@@ -93,6 +93,7 @@ PMML的确是跨平台的利器，但是也会存在一些问题：
 更多参考：
 - <a href="http://www.naodongopen.com/918.html" target="_blank">Java跨语言调用Python sklearn模型</a>
 - <a href="https://github.com/jpmml" target="_blank">jpmml</a>
+- <a href="https://help.aliyun.com/document_detail/45395.html?spm=a2c4g.11186623.2.10.1abe450bCafsFI" target="_blank">阿里云pai平台机器学习模型部署</a>
 
 
 # 社群
