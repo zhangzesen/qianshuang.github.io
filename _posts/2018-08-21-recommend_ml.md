@@ -129,9 +129,12 @@ model = LatentDirichletAllocation(n_components=2, random_state=0, learning_metho
 W = model.fit_transform(X)
 # 文本话题矩阵
 H = model.components_
+# 模型的困惑度，代表生成整个训练集文档的似然估计的负值，perplexity值越小，模型能力越强。可以用来作为选择超参K的参考。
+perplexity = model.perplexity(X)
 
 print(W)
 print(H)
+print(perplexity)
 ```
 运行结果：
 ```
@@ -141,6 +144,7 @@ print(H)
  [0.9318666  0.0681334 ]]
 [[ 5.37754968  1.88301326 12.18651534  8.71274273  6.96941893]
  [ 3.62245032 11.11698674  0.81348466  4.28725727  2.03058107]]
+5.96164339425483
 ```
 
 # 社群
