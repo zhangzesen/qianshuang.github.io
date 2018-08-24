@@ -260,6 +260,9 @@ Starting TensorBoard  on port 6006
 ![tensorflow](/img/tensorflow-02.png)
 可以从上图看到损失函数MSE的训练曲线。
 
+tensorflow实现逻辑回归：
+代码地址 <a href="https://github.com/qianshuang/dl-exp/blob/master/model.py" target="_blank">logistic_regression_tensorflow</a>
+
 # 社群
 
 - QQ交流群
