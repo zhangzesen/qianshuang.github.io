@@ -6,6 +6,11 @@ author:     子颢 						# 作者
 catalog: true 						# 是否归档
 tags:								#标签
     - 深度学习
+    - 梯度爆炸
+    - 梯度消失
+    - 激活函数
+    - Batch Norm
+    - dropout
 ---
 
 神经网络的灵活性也是它的主要缺点之一：有太多超参数可以调整。
@@ -50,7 +55,7 @@ hidden1 = fully_connected(X, n_hidden1, weights_initializer=he_init, scope="h1")
 
 tanh函数图像与Sigmoid类似，所以也会偶尔出现梯度消失问题，但是由于它是0均值的，所以效果比Sigmoid激活函数稍好，但是其计算稍复杂，所以训练慢。
 
-## RelU（Rectified Linear Unit）
+## ReLU（Rectified Linear Unit）
 
 大多数情况下，我们选择使用ReLU激活函数就够了，由于它的梯度要么是0要么是1，所以不会出现梯度消失和爆炸问题，计算（训练）快，且一般来说效果还不错。
 但是ReLU也并非完美，它有一个问题叫dying ReLUs，即在训练的过程中，在求偏误差时，如果输出值小于等于0，那么导数就为0，导数为0导致偏误差为0，进而导致这个神经元的所有流入权重向量不发生更新。
@@ -61,6 +66,7 @@ tanh函数图像与Sigmoid类似，所以也会偶尔出现梯度消失问题，
 2. ELU（exponential linear unit），α一般取1。
 ![TrainingDNN](/img/TrainingDNN-02.png)
 ![TrainingDNN](/img/TrainingDNN-03.png)
+
 ```
 hidden1 = fully_connected(X, n_hidden1, activation_fn=tf.nn.elu)
 
@@ -85,6 +91,7 @@ BN优点有以下几个方面：
 当然BN也有缺点：
 1. 给神经网络增加了额外的计算和复杂度，所以训练和预测成本高且慢。
 2. 并非处处有效，有时反而使效果变差，要针对具体场景做权衡。
+
 ```
 X = tf.placeholder(tf.float32, shape=(None, n_inputs), name="X")
 is_training = tf.placeholder(tf.bool, shape=(), name='is_training')
