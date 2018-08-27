@@ -125,6 +125,11 @@ with tf.variable_scope("scope1"):  # 变量共享，详细用法见方法注释
 with tf.variable_scope("scope1", reuse=True):
     w1_p = tf.get_variable("w1", shape=[])
     w2_p = tf.Variable(0.0, name="w2")
+with tf.variable_scope("", default_name="", reuse=True): # 可以使用root scope，效果同上
+    w1_p_r = tf.get_variable("scope1/w1")
+# 如果不知道变量名，可以使用下面的方法，或者去TensorBoard查看
+for variable in tf.global_variables():
+    print(variable.name)
 # 由于tf.Variable()每次都在创建新对象，所有reuse=True和它并没有什么关系
 print(w1 is w1_p, w2 is w2_p)  # True False
 print(w1.name, w2.name, w1_p.name, w2_p.name)  # scope1/w1:0 scope1/w2:0 scope1/w1:0 scope1_1/w2:0
