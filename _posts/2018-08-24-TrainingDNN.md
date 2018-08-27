@@ -10,7 +10,10 @@ tags:								#标签
     - 梯度消失
     - 激活函数
     - Batch Norm
+    - Max-Norm
     - dropout
+    - 梯度裁剪
+    - Optimizer
 ---
 
 神经网络的灵活性也是它的主要缺点之一：有太多超参数可以调整。
@@ -78,16 +81,19 @@ hidden1 = fully_connected(X, n_hidden1, activation_fn=leaky_relu)
 # Batch Normalization
 
 Batch Normalization也是解决梯度爆炸梯度消失问题的利器，它指出了随着前一层的参数改变，后面每一层的输入的分布在训练期间改变的问题。
+<p></p>
 这项技术只是在每一层的线性变换之后，激活函数之前加了一个操作，即先对之做简单的zero-centering并且归一化（通过当前的mini-batch计算平均值和标准差即可），然后使用两个新的参数（训练得到）对结果进行缩放和位移。换句话说，BN操作让模型自己学到每一层最佳的缩放和位移效果。BN算法如下所示：
 ![TrainingDNN](/img/TrainingDNN-04.png)
 ![TrainingDNN](/img/TrainingDNN-05.png)
 注意：在测试和预测时，因为没有mini-batch，所以直接使用整个训练集的均值和方差（可以在训练时通过移动平均值高效计算得到）。
+<p></p>
 BN优点有以下几个方面：
 1. 可以有效防止梯度消失和梯度爆炸问题，并且网络越深越有效。
 2. 使得神经网络模型对权重初始化方式不敏感。
 3. 可以使用较大的学习率，加速训练。
 4. 达到了一定的正则化的效果，防止过拟合。（因为对异常值做了归一化和再缩放）
 5. 输入数据无需再做标准化处理。
+
 当然BN也有缺点：
 1. 给神经网络增加了额外的计算和复杂度，所以训练和预测成本高且慢。
 2. 并非处处有效，有时反而使效果变差，要针对具体场景做权衡。
@@ -213,7 +219,7 @@ optimizer = tf.train.MomentumOptimizer(learning_rate, momentum=0.9)
 training_op = optimizer.minimize(loss, global_step=global_step)
 ```
 
-## l1 andl2 Regularization
+## l1 and l2 Regularization
 
 ```
 base_loss = tf.reduce_mean(xentropy, name="avg_xentropy")
@@ -237,7 +243,9 @@ loss = tf.add_n([base_loss] + reg_losses, name="loss")
 ![TrainingDNN](/img/TrainingDNN-11.png)
 即在训练的每一步，每一层（包括输入层的输入数据和隐藏层的神经元）的元素都有p的概率被drop掉。
 假设一家公司的员工，每天早上起床抛硬币决定今天是否去上班，这家公司会运转的好吗？Who knows，没准还真的会越来越好。这样迫使每个人身兼数职，因为身边的人随时可能不在，以前两个人或多个人干的活现在必须一个人完成，最终使得每一个人的能力都得到了增强，即使某个人辞职不干（神经元死掉）了，也不会造成太大影响，因为其他人随时可以顶上。
+<p></p>
 还有另一种理解方式，因为dropout，所以每一个神经元都有可能drop或保留，这样如果进行1000次迭代，就训练了1000个不同的神经网络，所以最终的神经网络可以看成是这1000个子网络的averaging ensemble。
+<p></p>
 需要注意的是，假设dropout设为0.5，那么训练完成后需要将每个神经元的连接权重乘以0.5，或者在训练过程中将WX + b的值乘以2。因为测试和预测阶段是不能dropout的，这样每层神经元个数就是训练时的两倍，导致domain shift。（由TensorFlow自动完成此操作）
 ```
 from tensorflow.contrib.layers import dropout
