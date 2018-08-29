@@ -17,22 +17,22 @@ word2vec，顾名思义就是word to vector，最早的词向量化方式是词�
 那么我们能不能想办法把自然语言中的每一个词，表示成统一语义空间内的统一维度的稠密向量，这时每个词不再是词典中无任何意义的ID表示，而是具有一定语义的词向量表示，语义相近的词，其向量也接近。<br>
 自然语言是人类智慧的结晶，所以每个词应该包含丰富的维度和特征，将每一维度上的特征数字化，就是word2vec的基本思想。
 
-那么怎么得到每个词的稠密向量表示呢？当然是通过海量数据训练得到，训练word2vec的方式主要有两种：CBOW与Skip-Gram。
+那么怎么得到每个词的稠密向量表示呢？当然是通过海量数据训练得到，训练word2vec的方式主要有两种：CBOW与Skip-Gram。<br>
 CBOW（Continuous Bag-of-Words），是指我们输入某一个特定词的上下文相关的词对应的one-hot向量作为输入特征X，该特定词对应的one-hot向量作为label，通过DNN训练分类模型，得到word2vec。比如下面这段话，我们的上下文大小取值为4，特定的这个词是"Learning"，上下文对应的词有8个，前后各4个，这8个词所对应的bag of words向量是我们CBOW模型的输入特征X，"Learning"这个词的bag of words向量是我们的输入label。也就是说CBOW是利用特定词上下文的词来预测该词。
 ![word2vec](/img/WV-01.png)
 ![word2vec](/img/WV-02.png)
 试构建计算图。
-上图中红框内容就是所有词的词向量矩阵。
+上图中红框内容就是所有词的词向量矩阵。<br>
 Skip-Gram则刚好相反，即输入特征是一个特定词的bag of words词向量，而输入label是该特定词对应的上下文词的bag of words词向量表示，所以这是一个多label的分类问题（其实仍然可以通过cross_entropy计算交叉熵损失作为损失函数）。还是上面的例子，我们的上下文大小取值为4，我们的输入是特定词"Learning"的bag of words词向量，预测结果是softmax概率排前8的8个词。也就是说Skip-Gram是利用特定词来预测其上下文的词。
 ![word2vec](/img/WV-03.png)
-图中红框内容就是所有词的词向量矩阵。
+图中红框内容就是所有词的词向量矩阵。<br>
 注意：word2vec的训练没有办法做early stopping和dropout，所以需要设置最大迭代步数。
 
 ## 负采样
 
-不管是CBOW还是Skip-Gram，我们都需要输出层进行softmax输出每一个词汇表中的词可能出现的概率。这时的参数数量5000 * 64 + 64 * 5000，并且输出层有5000个输出值，导致训练过于缓慢。解决办法是通过负采样（Negative Sampling）。
-对于CBOW我们怎么做负采样呢？比如我们有一个训练样本，中心词是w0，它周围上下文共有2c个词，记为context(w0)。由于这个中心词w0的确和context(w0)相关存在，因此我们把w0和context(w0)拼接起来作为一个真实的正例。通过Negative Sampling采样，我们得到neg个和w0不同的中心词wi,i=1,2,..neg，这样context(w0)和wi,i=1,2,..neg拼接就组成了neg个并不真实存在的负例。我们不停的进行这种负采样，直到产生足够多的样本后，对这些样本进行二分类，模型结构同上，只不过只有两个输出值。
-对于Skip-Gram，我们可以将中心词w0和上下文context(w0)的每个词两两组合作为正例，再通过负采样不在上下文context(w0)里面的词作为负例，同样的网络结构二分类模型。
+不管是CBOW还是Skip-Gram，我们都需要输出层进行softmax输出每一个词汇表中的词可能出现的概率。这时的参数数量5000 * 64 + 64 * 5000，并且输出层有5000个输出值，导致训练过于缓慢。解决办法是通过负采样（Negative Sampling）。<br>
+对于CBOW我们怎么做负采样呢？比如我们有一个训练样本，中心词是w0，它周围上下文共有2c个词，记为context(w0)。由于这个中心词w0的确和context(w0)相关存在，因此我们把w0和context(w0)拼接起来作为一个真实的正例。通过Negative Sampling采样，我们得到neg个和w0不同的中心词wi,i=1,2,..neg，这样context(w0)和wi,i=1,2,..neg拼接就组成了neg个并不真实存在的负例。我们不停的进行这种负采样，直到产生足够多的样本后，对这些样本进行二分类，模型结构同上，只不过只有两个输出值。<br>
+对于Skip-Gram，我们可以将中心词w0和上下文context(w0)的每个词两两组合作为正例，再通过负采样不在上下文context(w0)里面的词作为负例，同样的网络结构二分类模型。<br>
 最终都可以得到我们想要的词向量矩阵。试构建计算图。
 
 ## gensim训练word2vec
@@ -78,8 +78,8 @@ embedding_inputs = tf.nn.embedding_lookup(embedding, input_x)
 
 # fasttext
 
-Fasttext是Facebook2016年开源的文本分类和词训练工具，其最大的特点是模型简单，只有一层的隐层以及输出层，因此训练速度非常快，在普通的CPU上可以实现分钟级别的训练。同时，在多个标准的测试数据集上，Fasttext都有不错的表现。
-Fasttext主要有两个功能，一个是训练词向量，另一个是文本分类。
+Fasttext是Facebook2016年开源的文本分类和词训练工具，其最大的特点是模型简单，只有一层的隐层以及输出层，因此训练速度非常快，在普通的CPU上可以实现分钟级别的训练。同时，在多个标准的测试数据集上，Fasttext都有不错的表现。<br>
+Fasttext主要有两个功能，一个是训练词向量，另一个是文本分类。<br>
 词向量的训练，相对于word2vec来说，增加了subwords特性。subwords其实就是一个词的character-level的n-gram。比如单词”hello”，长度至少为3的char-level的ngram有”hel”,”ell”,”llo”,”hell”,”ello”以及本身”hello”，每个ngram都可以用一个稠密的向量Zg表示，于是整个单词”hello”就可以表示表示为所有subwords的加权求和：
 ![word2vec](/img/WV-05.png)
 这样做有什么好处呢？无非就是丰富了词表示的层次，就像中文可以拆开成偏旁部首一样。
