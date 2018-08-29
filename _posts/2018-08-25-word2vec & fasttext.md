@@ -101,7 +101,7 @@ Fasttext主要有两个功能，一个是训练词向量，另一个是文本分
 
 Fasttext的另一个功能是做文本分类，其模型结构和word2vec的CBOW模型非常类似：
 ![word2vec](/img/WV-06.png)
-当类别数较少时，直接套用softmax层并没有效率问题，但是当类别很多时，softmax层的计算就比较费时了，所以fasttext也支持negative sampling。
+当类别数较少时，直接套用softmax层并没有效率问题，但是当类别很多时，softmax层的计算就比较费时了，所以fasttext也支持negative sampling（想当于基于label embedding的QA match）。
 
 Fasttext模型有个致命的问题，就是丢失了词顺序的信息，因为隐层是通过简单的求和取平均得到的（注意这里考虑了词频），为了弥补这个不足，Fasttext增加了N-gram的特征。
 具体做法是把N-gram当成一个词，也用embedding向量来表示，在计算隐层时，把N-gram的embedding向量也加进去求和取平均。举个例子来说，假设某篇文章只有3个词：W1、W2、W3，N-gram的N取2，w1、w2、w3以及w12、w23分别表示词W1、W2、W3和bigram W1W2，W2W3的embedding向量，那么文章的隐层可表示为：
