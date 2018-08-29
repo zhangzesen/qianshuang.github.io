@@ -18,11 +18,16 @@ word2vec，顾名思义就是word to vector，最早的词向量化方式是词�
 自然语言是人类智慧的结晶，所以每个词应该包含丰富的维度和特征，将每一维度上的特征数字化，就是word2vec的基本思想。
 
 那么怎么得到每个词的稠密向量表示呢？当然是通过海量数据训练得到，训练word2vec的方式主要有两种：CBOW与Skip-Gram。<br>
-CBOW（Continuous Bag-of-Words），是指我们输入某一个特定词的上下文相关的词对应的one-hot向量作为输入特征X，该特定词对应的one-hot向量作为label，通过DNN训练分类模型，得到word2vec。比如下面这段话，我们的上下文大小取值为4，特定的这个词是"Learning"，上下文对应的词有8个，前后各4个，这8个词所对应的bag of words向量是我们CBOW模型的输入特征X，"Learning"这个词的bag of words向量是我们的输入label。也就是说CBOW是利用特定词上下文的词来预测该词。
+CBOW（Continuous Bag-of-Words），是指我们输入某一个特定词的上下文相关的词对应的one-hot向量作为输入特征X（注意与顺序无关并且出现多次只记一次），该特定词对应的one-hot向量作为label，通过DNN训练分类模型，得到word2vec。比如下面这段话，我们的上下文大小取值为4，特定的这个词是"Learning"，上下文对应的词有8个，前后各4个，这8个词所对应的bag of words向量是我们CBOW模型的输入特征X，"Learning"这个词的bag of words向量是我们的输入label。也就是说CBOW是利用特定词上下文的词来预测该词。
 ![word2vec](/img/WV-01.png)
 ![word2vec](/img/WV-02.png)
-试构建计算图。
 上图中红框内容就是所有词的词向量矩阵。<br>
+
+
+试构建计算图。
+
+
+可以发现第一个隐藏层的作用实际上就是将每个词的word2vec加和，如果将每个词的ont-hot向量加和，就是词频向量。
 Skip-Gram则刚好相反，即输入特征是一个特定词的bag of words词向量，而输入label是该特定词对应的上下文词的bag of words词向量表示，所以这是一个多label的分类问题（其实仍然可以通过cross_entropy计算交叉熵损失作为损失函数）。还是上面的例子，我们的上下文大小取值为4，我们的输入是特定词"Learning"的bag of words词向量，预测结果是softmax概率排前8的8个词。也就是说Skip-Gram是利用特定词来预测其上下文的词。
 ![word2vec](/img/WV-03.png)
 图中红框内容就是所有词的词向量矩阵。<br>
@@ -33,7 +38,7 @@ Skip-Gram则刚好相反，即输入特征是一个特定词的bag of words词�
 不管是CBOW还是Skip-Gram，我们都需要输出层进行softmax输出每一个词汇表中的词可能出现的概率。这时的参数数量5000 * 64 + 64 * 5000，并且输出层有5000个输出值，导致训练过于缓慢。解决办法是通过负采样（Negative Sampling）。<br>
 对于CBOW我们怎么做负采样呢？比如我们有一个训练样本，中心词是w0，它周围上下文共有2c个词，记为context(w0)。由于这个中心词w0的确和context(w0)相关存在，因此我们把w0和context(w0)拼接起来作为一个真实的正例。通过Negative Sampling采样，我们得到neg个和w0不同的中心词wi,i=1,2,..neg，这样context(w0)和wi,i=1,2,..neg拼接就组成了neg个并不真实存在的负例。我们不停的进行这种负采样，直到产生足够多的样本后，对这些样本进行二分类，模型结构同上，只不过只有两个输出值。<br>
 对于Skip-Gram，我们可以将中心词w0和上下文context(w0)的每个词两两组合作为正例，再通过负采样不在上下文context(w0)里面的词作为负例，同样的网络结构训练二分类模型。<br>
-最终都可以得到我们想要的词向量矩阵。试构建计算图。
+最终都可以得到我们想要的词向量矩阵。
 
 ## gensim训练word2vec
 
@@ -42,7 +47,14 @@ gensim是一个很好用的Python NLP的包，它封装了google的C语言版的
 from gensim.models import word2vec
 
 sentences = word2vec.LineSentence('./train_data_segment.txt')  # 分词后的文件
+# 训练word2vec
 model = word2vec.Word2Vec(sentences)
+# 导出文本格式的word2vec
+model.save("./text8.model")
+# 导出二进制格式的word2vec
+model.save_word2vec_format("./text8.model.bin", binary=True)
+# 加载word2vec对象
+model= word2vec.Word2Vec.load_word2vec_format("./text8.model.bin", binary=True)
 ```
 
 ## 加载预训练词向量
@@ -72,8 +84,10 @@ vocab_size = len(vocab)
 embedding_dim = len(embd[0])
 embedding = np.asarray(embd)
 
-# input_x为word id
-embedding_inputs = tf.nn.embedding_lookup(embedding, input_x)
+# 需要先将embedding转为Variable或tensor，input_x为word id
+emb_tensor = tf.Variable(embedding, trainable=False)
+# emb_tensor = tf.convert_to_tensor(emb)  # 转换为常量tensor
+embedding_inputs = tf.nn.embedding_lookup(emb_tensor, input_x)
 ```
 
 # fasttext
@@ -89,7 +103,7 @@ Fasttext的另一个功能是做文本分类，其模型结构和word2vec的CBOW
 ![word2vec](/img/WV-06.png)
 当类别数较少时，直接套用softmax层并没有效率问题，但是当类别很多时，softmax层的计算就比较费时了，所以fasttext也支持negative sampling。
 
-Fasttext模型有个致命的问题，就是丢失了词顺序的信息，因为隐层是通过简单的求和取平均得到的，为了弥补这个不足，Fasttext增加了N-gram的特征。
+Fasttext模型有个致命的问题，就是丢失了词顺序的信息，因为隐层是通过简单的求和取平均得到的（注意这里考虑了词频），为了弥补这个不足，Fasttext增加了N-gram的特征。
 具体做法是把N-gram当成一个词，也用embedding向量来表示，在计算隐层时，把N-gram的embedding向量也加进去求和取平均。举个例子来说，假设某篇文章只有3个词：W1、W2、W3，N-gram的N取2，w1、w2、w3以及w12、w23分别表示词W1、W2、W3和bigram W1W2，W2W3的embedding向量，那么文章的隐层可表示为：
 ![word2vec](/img/WV-07.png)
 具体实现上，由于n-gram的量远比word大的多，完全存下所有的n-gram也不现实。Fasttext采用了Hash桶的方式，把所有的n-gram都哈希到buckets个桶中，哈希到同一个桶的所有n-gram共享一个embedding vector。
