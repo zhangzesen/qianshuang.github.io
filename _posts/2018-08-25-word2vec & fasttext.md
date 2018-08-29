@@ -22,10 +22,24 @@ CBOW（Continuous Bag-of-Words），是指我们输入某一个特定词的上�
 ![word2vec](/img/WV-01.png)
 ![word2vec](/img/WV-02.png)
 上图中红框内容就是所有词的词向量矩阵。<br>
+DNN计算图如下，W1矩阵就是我们要求的word2vec：
+```
+self.input_x = tf.placeholder(tf.float32, [None, self.config.vocab_size], name='input_x')
+self.input_y = tf.placeholder(tf.float32, [None, self.config.vocab_size], name='input_y')
 
+# hidden layer
+W1 = tf.Variable(tf.truncated_normal([self.config.vocab_size, self.config.emb_size], stddev=0.1))  # 隐藏层64个神经元
+b1 = tf.Variable(tf.constant(0.1, shape=[self.config.emb_size]))
+y_conv_1 = tf.matmul(self.input_x, W1) + b1
+layer_1 = tf.nn.relu(y_conv_1)  # 激活函数
 
-试构建计算图。
+# output layer
+W2 = tf.Variable(tf.truncated_normal([self.config.emb_size, self.config.vocab_size], stddev=0.1))
+b2 = tf.Variable(tf.constant(0.1, shape=[self.config.vocab_size]))
+y_conv = tf.matmul(layer_1, W2) + b2
 
+self.y_pred_cls = tf.argmax(y_conv, 1)  # 预测类别
+```
 
 可以发现第一个隐藏层的作用实际上就是将每个词的word2vec加和，如果将每个词的ont-hot向量加和，就是词频向量。
 Skip-Gram则刚好相反，即输入特征是一个特定词的bag of words词向量，而输入label是该特定词对应的上下文词的bag of words词向量表示，所以这是一个多label的分类问题（其实仍然可以通过cross_entropy计算交叉熵损失作为损失函数）。还是上面的例子，我们的上下文大小取值为4，我们的输入是特定词"Learning"的bag of words词向量，预测结果是softmax概率排前8的8个词。也就是说Skip-Gram是利用特定词来预测其上下文的词。
