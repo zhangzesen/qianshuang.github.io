@@ -32,7 +32,7 @@ Skip-Gram则刚好相反，即输入特征是一个特定词的bag of words词�
 
 不管是CBOW还是Skip-Gram，我们都需要输出层进行softmax输出每一个词汇表中的词可能出现的概率。这时的参数数量5000 * 64 + 64 * 5000，并且输出层有5000个输出值，导致训练过于缓慢。解决办法是通过负采样（Negative Sampling）。<br>
 对于CBOW我们怎么做负采样呢？比如我们有一个训练样本，中心词是w0，它周围上下文共有2c个词，记为context(w0)。由于这个中心词w0的确和context(w0)相关存在，因此我们把w0和context(w0)拼接起来作为一个真实的正例。通过Negative Sampling采样，我们得到neg个和w0不同的中心词wi,i=1,2,..neg，这样context(w0)和wi,i=1,2,..neg拼接就组成了neg个并不真实存在的负例。我们不停的进行这种负采样，直到产生足够多的样本后，对这些样本进行二分类，模型结构同上，只不过只有两个输出值。<br>
-对于Skip-Gram，我们可以将中心词w0和上下文context(w0)的每个词两两组合作为正例，再通过负采样不在上下文context(w0)里面的词作为负例，同样的网络结构二分类模型。<br>
+对于Skip-Gram，我们可以将中心词w0和上下文context(w0)的每个词两两组合作为正例，再通过负采样不在上下文context(w0)里面的词作为负例，同样的网络结构训练二分类模型。<br>
 最终都可以得到我们想要的词向量矩阵。试构建计算图。
 
 ## gensim训练word2vec
@@ -80,6 +80,7 @@ embedding_inputs = tf.nn.embedding_lookup(embedding, input_x)
 
 Fasttext是Facebook2016年开源的文本分类和词训练工具，其最大的特点是模型简单，只有一层的隐层以及输出层，因此训练速度非常快，在普通的CPU上可以实现分钟级别的训练。同时，在多个标准的测试数据集上，Fasttext都有不错的表现。<br>
 Fasttext主要有两个功能，一个是训练词向量，另一个是文本分类。<br>
+
 词向量的训练，相对于word2vec来说，增加了subwords特性。subwords其实就是一个词的character-level的n-gram。比如单词”hello”，长度至少为3的char-level的ngram有”hel”,”ell”,”llo”,”hell”,”ello”以及本身”hello”，每个ngram都可以用一个稠密的向量Zg表示，于是整个单词”hello”就可以表示表示为所有subwords的加权求和：
 ![word2vec](/img/WV-05.png)
 这样做有什么好处呢？无非就是丰富了词表示的层次，就像中文可以拆开成偏旁部首一样。
