@@ -1,7 +1,7 @@
 ---
 layout:     post   				    # 使用的布局
-title:      25.0 基于CNN、RNN以及CRF的NER 				# 标题 
-date:       2018-08-28 				# 时间
+title:      26.0 基于CNN、RNN以及CRF的NER 				# 标题 
+date:       2018-08-29 				# 时间
 author:     子颢 						# 作者
 catalog: true 						# 是否归档
 tags:								#标签
