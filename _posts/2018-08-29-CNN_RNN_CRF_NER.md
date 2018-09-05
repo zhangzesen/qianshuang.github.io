@@ -47,9 +47,6 @@ tags:								#标签
 # 模型训练
 
 代码地址 <a href="https://github.com/qianshuang/NER" target="_blank">https://github.com/qianshuang/NER</a>
-```
-
-```
 运行结果：
 ```
 
