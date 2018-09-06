@@ -128,6 +128,7 @@ with tf.name_scope("optimize"):
 Ltask是各个特定任务的loss，优化它是为了训练我们的主任务；
 Ladv是任务判别器的loss，优化它是为了使shared feature尽量纯粹；
 Ldiff是正交约束的loss，优化它是为了使task-specific feature尽量纯粹。
+
 ```
 # 词向量映射
 embedding_Q = tf.get_variable('embedding_Q', [self.config.vocab_size, self.config.embedding_dim])
