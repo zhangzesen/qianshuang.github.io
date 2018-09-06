@@ -61,11 +61,12 @@ training_op = optimizer.minimize(loss, var_list=train_vars)
 
 多任务迁移学习，顾名思义，就是把多个相关（related）的任务放在一起学习，同时学习多个任务。<br>
 现在大多数机器学习任务都是单任务学习，即将一个复杂的问题，分解为简单且相互独立的子问题来单独解决，然后再合并结果得到最初复杂问题的结果。这样做看似合理，其实是不正确的，因为现实世界中很多问题不能分解为一个个独立的子问题，即使可以分解，各个子问题之间也是相互关联的，通过一些共享因素或共享表示（share representation）联系在一起。把现实问题当做一个个独立的单任务处理，忽略了问题之间所富含的丰富的关联信息。<br>
-举个例子，在人机交互中，用户向机器人发出一个问题query，机器人首先通过该query以及上下文对用户意图进行识别（task1），然后通过NER提取该query中的关键信息（task2）。这看似是两个独立的任务，一个做意图分类（Text Classification），一个做命名实体识别（NER），实际上两个任务之间存在紧密的联系，二者相互促进，如果在一起训练，两个任务的效果都会得到提升。比如当意图分类任务识别出这是一个订机票的意图，那么也就知道了NER任务将要提取出发地、目的地以及出发时间这三个关键slot；反之，当NER任务从用户query中识别出出发地、目的地以及出发时间这三个slot，这些信息对意图分类任务也有帮助（因为大概率知道这是一个订机票或火车票的意图）。
+举个例子，在人机交互中，用户向机器人发出一个问题query，机器人首先通过该query以及上下文对用户意图进行识别（task1），然后通过NER提取该query中的关键信息（task2）。这看似是两个独立的任务，一个做意图分类（Text Classification），一个做命名实体识别（NER），实际上两个任务之间存在紧密的联系，二者相互促进，如果在一起训练，两个任务的效果都会得到提升。比如当意图分类任务识别出这是一个订机票的意图，那么也就知道了NER任务将要提取出发地、目的地以及出发时间这三个关键slot；反之，当NER任务从用户query中识别出出发地、目的地以及出发时间这三个slot，这些信息对意图分类任务也有帮助（因为大概率知道这是一个订机票或火车票的意图）。这也叫信息窃取。
 
 多个任务之间为什么能相互促进，因为任务与任务之间可以互相为我所用，也就是说我提取的特征可以共享给你，对你有用，但是只有一部分对你有用，另一部分是我这个任务专有的特征，对你来说是噪声。那么怎样把这两部分特征分别提取出来呢？<br>
 ![TL](/img/TL-04.png)
 对同一个用户query，使用三个特征提取器，左右两个分别用来提取task-specific feature，中间的用来提取shared-feature，将task-specific feature和shared-feature组合起来（多种方式，一般直接concat），分别作为特定任务的输入特征。这样做之后一般不用做其他的约束，模型自己就可以学到task-specific feature以及shared-feature。
+
 ```
 embedding = tf.get_variable('embedding', [self.config.vocab_size, self.config.embedding_dim])
 embedding_inputs = tf.nn.embedding_lookup(embedding, self.input_x)
@@ -107,20 +108,67 @@ with tf.name_scope("optimize"):
     self.optim = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate).minimize(self.loss)
 ```
 
+代码地址 <a href="https://github.com/qianshuang/NER" target="_blank">https://github.com/qianshuang/NER</a>
+
 # multi-language learning
 
 对于多语言迁移学习，一般是两种做法。一种是直接将源语言翻译到目标语言，然后借用目标语言已训练好的模型完成任务，但这种方式严重受限于翻译的误差和延时。另一种是将源语言和目标语言通过映射函数映射到统一空间维度，例如做词向量映射。
+对于多语言的文本分类而言，label的数量和种类都是相同的，只是语言不同，也就是说只是文本的表现形式不同，文本代表的含义以及想要表达的意图都是那几种，既然如此，可以肯定不同的语言之间肯定存在某种shared feature，所以可以将多语言放在一起训练multi-task model。
 
-# 模型训练
+我们当然可以像训练NER & CF multi-task模型一样训练多语言的multi-task model，但是如果共享特征空间和任务特定特征空间相互干扰，会对模型的最终效果产生不良影响。我们可以通过对抗训练来保证共享特征空间仅包含多任务的共享信息，而通过正交约束来消除任务特定特征空间中掺杂的共享冗余特征。
+![TL](/img/TL-05.png)
+建模过程如下：
+![TL](/img/TL-08.png)
+1. GAN对抗训练：为了保证共享特征空间仅包含多任务的共享信息，而不会被来自特定任务的信息所污染，可以借鉴GAN的思想，使用一个分类器作为Discriminator，判断共享特征提取器所提取到的特征到底来自于哪个任务，所以这个分类器以taskId作为label，直到判别器最终被完全误导，无法分辨特征来源于哪个任务，那么就证明共享特征提取器所提取到的特征全部为shared feature。
+![TL](/img/TL-06.png)
+2. 正交约束：为了保证各任务私有的特征空间仅包含私有信息，而不会掺杂冗余的共享信息，可以对共享特征和私有特征进行正交约束。
+![TL](/img/TL-07.png)
+3. 模型的最终Loss为：
+![TL](/img/TL-09.png)
+Ltask是各个特定任务的loss，优化它是为了训练我们的主任务；
+Ladv是任务判别器的loss，优化它是为了使shared feature尽量纯粹；
+Ldiff是正交约束的loss，优化它是为了使task-specific feature尽量纯粹。
+```
+# 词向量映射
+embedding_Q = tf.get_variable('embedding_Q', [self.config.vocab_size, self.config.embedding_dim])
+embedding_inputs_Q = tf.nn.embedding_lookup(embedding_Q, self.input_Q)
+# input dropout
+embedding_inputs_Q = tf.nn.dropout(embedding_inputs_Q, self.keep_prob)
 
-代码地址 <a href="https://github.com/qianshuang/NER" target="_blank">https://github.com/qianshuang/NER</a>
+# BCNN
+rep_Q_src = self.network_bcnn(embedding_inputs_Q)  # [-1, 128 * 5]
+fc_out_src = self.fc(rep_Q_src, 128 * 5, 100)  # [-1, 100]
+
+rep_Q_share = self.network_bcnn(embedding_inputs_Q)  # [-1, 128 * 5]
+fc_out_share = self.fc(rep_Q_share, 128 * 5, 100)
+
+feature = tf.concat([fc_out_src, fc_out_share], axis=1)
+feature = tf.nn.dropout(feature, self.keep_prob)
+
+# 分类器
+W_fc2 = tf.Variable(tf.truncated_normal([200, self.config.num_classes], stddev=0.1))
+b_fc2 = tf.Variable(tf.constant(0.1, shape=[self.config.num_classes]))
+y_conv = tf.matmul(feature, W_fc2) + b_fc2
+self.y_pred_cls = tf.argmax(y_conv, 1)  # 预测类别
+
+# 损失函数，交叉熵
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=y_conv, labels=self.input_label)
+loss_src = tf.reduce_mean(cross_entropy)
+
+# adversary loss
+loss_adv = self.adversarial_loss(fc_out_share, self.input_task)
+loss_diff = self.diff_loss(fc_out_share, fc_out_src)
+
+self.loss = loss_src + 0.05 * loss_adv + loss_diff
+
+# 优化器
+self.optim = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate).minimize(self.loss)
+# 准确率
+self.correct_pred = tf.equal(tf.argmax(self.input_label, 1), self.y_pred_cls)
+self.acc = tf.reduce_mean(tf.cast(self.correct_pred, tf.float32))
 ```
 
-```
-运行结果：
-```
-
-```
+代码地址 <a href="https://github.com/qianshuang/dl-exp" target="_blank">https://github.com/qianshuang/dl-exp</a>
 
 # 社群
 
