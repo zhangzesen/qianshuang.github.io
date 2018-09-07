@@ -51,7 +51,9 @@ training_op = optimizer.minimize(loss, var_list=train_vars)
 上面是relation network的模型图，论文地址：<a href="https://arxiv.org/pdf/1711.06025.pdf" target="_blank">relation metwork</a>
 ![TL](/img/TL-03.png)
 这是matching network的模型图，论文地址：<a href="https://github.com/karpathy/paper-notes/blob/master/matching_networks.md" target="_blank">matching metwork</a>
-注意：对encode后的向量进行按位点乘，实际上就是计算距离（想象可以利用softmax与one-hot直接相乘计算接近程度），再用softmax激活后乘以原向量，实际上就是我们的Attention机制。
+注意：
+- 对encode后的向量进行按位点乘，实际上就是计算距离（想象可以利用softmax与one-hot直接相乘计算接近程度），再用softmax激活后乘以原向量，实际上就是我们的Attention机制。
+- 将encoder之后的向量直接concat然后做全连接，比向量直接相减或相乘，能够更好的表达向量之间的relation，因为向量元素之间不一定存在显示的对齐关系，而全连接相当于对向量元素两两进行对比。
 
 据我们目前所知，其实我们有几种相对可行的解决方案：
 - 我们知道SVM是对样本Unbalance不敏感的一种分类算法，但是SVM是一种线性分类器（即使通过核函数映射到高维空间，仍然是线性的），而且核函数的目的是进行特征变换，以得到更多高维特征，神经网络的激活函数是去线性化，并用很多神经元以及深层网络从根本上解决线性不可分问题。

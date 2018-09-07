@@ -20,7 +20,7 @@ tags:								#标签
 ![logistic regression](/img/logistic_regression-02.png)
 由此可见，逻辑回归实际上是用线性回归模型去拟合真实样本的对数几率，所以是一种对数线性模型。
 
-对于逻辑回归模型的损失函数，我们通常使用最大似然估计，即令每个样本属于其真实标记的概率越大越好。对于二分类而言，
+对于逻辑回归模型的损失函数（其实就是我们后面要讲到的交叉熵损失cross-entropy），我们通常使用最大似然估计，即令每个样本属于其真实标记的概率越大越好。对于二分类而言，
 ![logistic regression](/img/logistic_regression-03.png)
 上面两个式子综合起来为：
 ![logistic regression](/img/logistic_regression-04.png)
