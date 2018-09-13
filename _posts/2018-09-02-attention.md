@@ -16,20 +16,22 @@ tags:								#标签
 Attention机制的核心原理是，通过在输出target时，paying "attention" to relevant source content，在目标和源之间建立直接的快捷连接。因为source和target之间有一种隐式的对其关系（通过Attention刻画），我们可以在训练完成后将这种对其关系以矩阵的形式可视化出来：
 ![Attention](/img/Attention-01.png)
 为什么Attention机制能够显著提升seq2seq的效果？原因有以下几点：
-- Attention学习对其关系，实际上是学习一种统计规律，即当某几个字经常一起出现时，应该输出什么东西，哪个字对输出的作用最大。或者说decoder端生成位置i的词时，有多少程度受encoder端的位置j的词影响。试图让网络学出来对不同的输入区域加以不同关注度。
-- 在上一节的seq2seq模型中，当decoding时，我们只传递了最后一个输入time step的state来作为decoder模块的初始state，但是对于长句子，单靠这一个最终状态可能会造成信息损失。
-- Attention机制使用所有的输入time step状态，并把他们当做一个输入信息储存器，通过Attention计算权重来动态提取。
+1. Attention学习对其关系，实际上是学习一种统计规律，即当某几个字经常一起出现时，应该输出什么东西，哪个字对输出的作用最大。或者说decoder端生成位置i的词时，有多少程度受encoder端的位置j的词影响。试图让网络学出来对不同的输入区域加以不同关注度。
+2. 在上一节的seq2seq模型中，当decoding时，我们只传递了最后一个输入time step的state来作为decoder模块的初始state，但是对于长句子，单靠这一个最终状态可能会造成信息损失。
+3. Attention机制使用所有的输入time step状态，并把他们当做一个输入信息储存器，通过Attention计算权重来动态提取。
 ![Attention](/img/Attention-02.png)
+
 Attention机制的原理如下：
-- decoding时，通过将current target hidden state与所有的source states进行比较，计算Attention weights。
-- 根据Attention weights计算出一个context vector（source states的加权平均）。
-- 将context vector和current target hidden state联合起来（直接concat）产生最终的attention vector。
-- 将attention vector作为下一个time step的输入。
+1. decoding时，通过将current target hidden state与所有的source states进行比较，计算Attention weights。
+2. 根据Attention weights计算出一个context vector（source states的加权平均）。
+3. 将context vector和current target hidden state联合起来（直接concat）产生最终的attention vector。
+4. 将attention vector作为下一个time step的输入。
 ![Attention](/img/Attention-03.png)
 score function通常有以下几两种形式：
 ![Attention](/img/Attention-04.png)
 - 点乘（矩阵乘法），其实就是计算向量之间的cosine相似度，类似于matching network的做法。
 - 基于全连接神经网络，类似于compare network的做法。
+
 ```
 # attention
 attention_mechanism = tf.contrib.seq2seq.LuongAttention(self.config.rnn_size, encoder_output, memory_sequence_length=self.source_sequence_length)
