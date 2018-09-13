@@ -212,10 +212,10 @@ saver = tf.train.Saver()
 with tf.Session() as sess:
     sess.run(init)
     sess.run(training_op)
-    # 在执行图阶段，可以随时调用save方法，保存模型，保存当面session所在的图上的所有节点
+    # 在执行图阶段，可以随时调用save方法，保存模型，保存传入的session所在的图上的所有节点
     save_path = saver.save(sess, "tmp/my_model.ckpt")
 with tf.Session() as sess:
-    # 在执行的开始阶段，加载模型，这时候不需要sess.run(init)，因为加载过程已经初始化好了（但是注意所有变量已定义）
+    # 在执行的开始阶段，加载模型，加载传入的session所在的图上的所有节点，这时候不需要sess.run(init)，因为加载过程已经初始化好了（但是注意所有变量已定义）
     saver.restore(sess, "tmp/my_model.ckpt")
     print(theta.name)  # theta:0
     print(sess.run(theta))  # 14

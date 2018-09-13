@@ -20,7 +20,7 @@ tags:								#标签
 ![NNCRF](/img/NNCRF-01.png)
 ![NNCRF](/img/NNCRF-02.png)
 ![NNCRF](/img/NNCRF-03.png)
-可以看到我们直接对每个cell的输出先做全连接Wrapper（无激活函数，只需拿到score），得到属于每个tag的score，然后计算所有可能的tag序列的score（直接每个tag的score加和），再通过softmax得到每个tag序列的概率，最后通过极大似然估计+随机梯度下降训练模型参数。
+可以看到我们直接对每个cell的输出先做全连接Wrapper（无激活函数，只需拿到score），得到属于每个tag的score，然后计算所有可能的tag序列的score（直接每个tag的score加和），再通过softmax得到每个tag序列的概率，最后通过极大似然估计+随机梯度下降训练模型参数。其实更好的做法是用encoder-decoder。
 
 但是我们知道一个特定tag和其周围的tag是有关系的，上面的实现方式并没有利用到其周围tag的信息（虽然用bi-RNN可以利用特定输入的过去和未来的上下文信息，但是那是针对输入X的上下文，并不是tag的上下文）。CRF刚好可以cover住这个问题，那么很自然的想到应该两者结合，所以RNN-CRF模型应运而生。
 
