@@ -115,6 +115,7 @@ Variational Autoencoders，变分自动编码器。
 1. 从hidden2生成两个hidden3，一个表示均值μ，另一个表示方差σ。
 2. 从均值μ、方差σ的高斯分布中随机采样得到实际的coding。
 3. 在训练期间，损失函数推动输入数据向编码空间（也称为潜在空间）逐渐迁移，最终形成高斯分布。
+
 ```
 n_inputs = 28 * 28 # for MNIST
 n_hidden1 = 500
@@ -150,9 +151,11 @@ latent_loss = 0.5 * tf.reduce_sum(
 cost = reconstruction_loss + latent_loss
 training_op = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 ```
+
 注意：
 1. tf.random_normal()方法以均值为0方差为1初始化矩阵的每一个元素值，那么每个instance的所有维度值也组成高斯分布，batch个训练样本同样组成高斯分布。
 2. 你可以很容易地生成一个新的实例，只需从高斯分布中抽样codings，解码它即可。
+
 ```
 n_digits = 60
 n_epochs = 50
