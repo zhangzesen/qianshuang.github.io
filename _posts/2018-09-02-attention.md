@@ -1,6 +1,6 @@
 ---
 layout:     post   				    # 使用的布局
-title:      30.0 attention机制 				# 标题 
+title:      30.0 Attention机制 				# 标题 
 date:       2018-09-02 				# 时间
 author:     子颢 						# 作者
 catalog: true 						# 是否归档

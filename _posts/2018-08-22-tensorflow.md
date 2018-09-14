@@ -173,7 +173,8 @@ tensor的shape
 ```
 e1 = tf.get_variable('e1', [5000, 64])  # 定义二维Tensor
 print(e1.shape)  # (5000, 64)
-print(e1.get_shape())  # (5000, 64)，上一句方法的别名
+print(e1.get_shape())  # (5000, 64)，上一句方法的别名，只能拿到编译时的shape
+# 创建一个在运行时返回X的shape的ops，能够在运行时拿到具体shape
 print(tf.shape(e1))  # Tensor("Shape:0", shape=(2,), dtype=int32)
 
 e1_ = tf.reshape(e1, [64, -1])
