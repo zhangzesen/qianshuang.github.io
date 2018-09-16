@@ -214,15 +214,85 @@ for iteration in range(config.n_iterations):
     sess.run(model.training_op, feed_dict=feed_dict)
 ```
 
+## 马尔科夫决策过程
+
+马尔科夫决策过程（Markov Decision Processes，MDP），即在马尔科夫网络的基础上加入了动作（action）和奖励（rewards）。
+![RL](/img/RL-04.png)
+MDP要解决的关键问题是估计每一状态的最佳状态值，这是一个迭代的过程，因为在某一状态执行每一动作之后会对未来产生深远的影响，所以未来的每一状态得到的rewards理应贡献一部分给当前状态，而且距离越远衰减越厉害。所以每一状态的最佳状态值可以通过以下公式计算：
+![RL](/img/RL-05.png)
+![RL](/img/RL-06.png)
+首先可以将所有状态估计值初始化为零，然后使用该算法迭代更新它们，只要给定足够的时间，这些估计值可以保证收敛到最佳状态值。
+
+知道了每一状态的最佳状态值并没有明确告诉智能体应该在每一状态采取什么动作，所以我们在上面公式的基础上稍加修改，就可以得到state-action pair (s,a)的最优值，即Q-Values，这个Q-Values就是模型要学习的东西：
+![RL](/img/RL-07.png)
+一旦获得了最佳Q值，定义最优策略就简单了，当agent处于状态s时，它应该始终选择具有最高Q值的动作。
+下面我们通过程序模拟以下MDP：
+```
+nan = np.nan  # represents impossible actions
+# shape=[s, a, s'], 即[3, 3, 3]，比如第2行第1列的[0.0, 1.0, 0.0]代表s1a0s0,s1a0s1,s1a0s2
+T = np.array([
+    [[0.7, 0.3, 0.0], [1.0, 0.0, 0.0], [0.8, 0.2, 0.0]],
+    [[0.0, 1.0, 0.0], [nan, nan, nan], [0.0, 0.0, 1.0]],
+    [[nan, nan, nan], [0.8, 0.1, 0.1], [nan, nan, nan]],
+])
+R = np.array([  # shape=[s, a, s']
+    [[10., 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+    [[10., 0.0, 0.0], [nan, nan, nan], [0.0, 0.0, -50.]],
+    [[nan, nan, nan], [40., 0.0, 0.0], [nan, nan, nan]],
+])
+# 每个状态可能采取的action
+possible_actions = [[0, 1, 2], [0, 2], [1]]
+# -inf for impossible actions
+Q = np.full((3, 3), -np.inf)
+# Initial value = 0.0, for all possible actions
+for state, actions in enumerate(possible_actions):
+    Q[state, actions] = 0.0
+# learning_rate = 0.01
+discount_rate = 0.95
+n_iterations = 100
+for iteration in range(n_iterations):
+    Q_prev = Q.copy()
+    for s in range(3):
+        for a in possible_actions[s]:
+            Q[s, a] = np.sum([
+                T[s, a, sp] * (R[s, a, sp] + discount_rate * np.max(Q_prev[sp]))
+                for sp in range(3)
+            ])
+
+print(Q)  # [[21.88646117 20.79149867 16.854807], [1.10804034 -inf 1.16703135], [-inf 53.8607061 -inf]]，最终趋于稳定
+print(np.argmax(Q, axis=1))  # [0 2 1]，optimal action for each state
+```
+
 ## Q-learning
 
+对于强化学习来说，上面的T矩阵与R矩阵我们事先并不可知，agent必须经历每个state和每个transition至少一次以了解奖励，并且如果要对转移矩阵进行合理估计，它必须经历多次。所以agent需要使用探索策略（例如纯随机策略）来探索MDP，并且随着每次不同的探索，agent根据实际观察到的transition和rewards更新状态值的估计值。再继续在MDP算法的基础上稍加改动就得到了我们的Q-learning算法：
+![RL](/img/RL-08.png)
+α是学习率，r是reward，γ是discount rate，对于每个（s，a）pair，Q-learning算法跟踪agent在离开具有动作a的状态s时获得的奖励的运行平均值，以及它期望稍后获得的奖励。下面还是通过代码实现Q-learning算法：
+```
+learning_rate0 = 0.05
+learning_rate_decay = 0.1
+discount_rate = 0.95
+n_iterations = 20000
 
+s = 0  # start in state 0
+Q = np.full((3, 3), -np.inf) # -inf for impossible actions
+possible_actions = [[0, 1, 2], [0, 2], [1]]
+for state, actions in enumerate(possible_actions):
+    Q[state, actions] = 0.0 # Initial value = 0.0, for all possible actions
 
+for iteration in range(n_iterations):
+    a = rnd.choice(possible_actions[s])  # choose an action (randomly)
+    sp = rnd.choice(range(3), p=T[s, a])  # pick next state using T[s, a]
+    reward = R[s, a, sp]  # 跟踪agent在离开具有动作a的状态s时获得的奖励的运行平均值
+    learning_rate = learning_rate0 / (1 + iteration * learning_rate_decay)
+    Q[s, a] = learning_rate * Q[s, a] + (1 - learning_rate) * (reward + discount_rate * np.max(Q[sp]))
+    s = sp  # move to next state
+```
+当迭代次数足够多时，该算法将收敛得到最佳的Q值。
 
+## Deep Q-Learning
 
-
-
-
+用神经网络来估计Q值称为deep Q-network（DQN），并且使用DQN的Q-learning算法称为Deep Q-Learning。
 
 # 模型训练
 
