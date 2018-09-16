@@ -164,8 +164,8 @@ with tf.Session() as sess:
     init.run()
     for epoch in range(n_epochs):
         for iteration in range(n_batches):
-	        X_batch, y_batch = mnist.train.next_batch(batch_size)
-	        sess.run(training_op, feed_dict={X: X_batch})
+            X_batch, y_batch = mnist.train.next_batch(batch_size)
+            sess.run(training_op, feed_dict={X: X_batch})
     codings_rnd = np.random.normal(size=[n_digits, n_hidden3])
     # 直接feed hidden3
     outputs_val = outputs.eval(feed_dict={hidden3: codings_rnd})

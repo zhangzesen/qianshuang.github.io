@@ -12,46 +12,239 @@ tags:								#标签
 
 # 算法原理
 
+强化学习其实是独立于机器学习和深度学习的一门学科，既不属于有监督学习，也不属于无监督学习。在强化学习中，智能体（agent）在环境（environment）中进行观察（observe）并采取行动（action），它会收到奖励（reward）作为回报。其目标是学会以最大化其预期的长期奖励（long-term rewards）行事。
+agent用来确定其action的算法称为其策略（policy）。例如该policy可以是将观察observation作为输入并输出要采取的动作action的神经网络。通过评估rewards关于policy参数的梯度，然后通过梯度上升（使rewards最大化）来调整这些参数，这就是policy gradients强化学习算法。
+
+## OpenAI Gym
+
+OpenAI gym是一个提供各种强化学习模拟环境的工具包，你可以用它来训练、开发并试验新的强化学习（RL）算法。
+其安装非常简单：
+```
+pip3 install --upgrade gym
+```
+让我们从RL的hello world程序——平衡车（CartPole）入手，一点点深入强化学习的大门。
+![RL](/img/RL-01.png)
+```
+# 创建一个CartPole的环境模拟器，可以向左或向右加速推车，以平衡放置在其顶部的杆
+env = gym.make("CartPole-v0")
+# 初始化环境变量，返回第一个观察结果
+obs = env.reset()
+# 每个值的含义分别是：小车的水平位置(0.0 = center)、速度、杆的角度(0.0 = 垂直)、杆的角速度
+print(obs)  # [-0.03446547 -0.04519292  0.01626575 -0.01777462]
+# 渲染并显示环境
+env.render()
+
+# 可能采取的行动只能是两个离散的值，向左(0)和向右(1)
+print(env.action_space)  # Discrete(2)
+# step表示执行一步动作，这里向右移动一步
+action = 1
+obs, reward, done, info = env.step(action)
+# 采取行动后的下一个观测结果：向右为+，向左为-
+print(obs)  # [ 0.01969743  0.23745748 -0.02107486 -0.26251706]
+# 采取行动后的奖励，不管采取什么动作，奖励都是1，所以我们的目标是尽量让小车运行的时间长，实际中奖励值根据先验知识确定，并且越丰富越好
+print(reward)  # 1.0
+# 当执行完所有episode后才会返回True。当小车倾斜角度太大，或者小车跑出屏幕，游戏结束也会返回True，这时环境必须reset才能重用
+print(done)  # False
+# debug信息
+print(info)  # {}
+```
+
+## basic policy
+
+我们首先使用一个最基本的硬编码的策略，即杆向左倾斜时向左走，向右倾斜时向右走，我们来看下小车最长能坚持多久（得到多少奖励）。
+```
+import gym
+import numpy as np
+
+env = gym.make("CartPole-v0")
+
+
+# 杆向左倾斜时向左走，向右倾斜时向右走
+def basic_policy(obs):
+    angle = obs[2]
+    return 0 if angle < 0 else 1
+
+
+totals = [1,2,3]
+for episode in range(50):
+    episode_rewards = 0
+    obs = env.reset()
+    for step in range(100):  # 100 steps max, we don't want to run forever
+        action = basic_policy(obs)
+        obs, reward, done, info = env.step(action)
+        env.render()
+        episode_rewards += reward
+        if done:
+            break
+    totals.append(episode_rewards)
+
+print(np.mean(totals), np.std(totals), np.min(totals), np.max(totals))  # 41.132075471698116 12.619298990560923 1.0 64.0
+```
+可以看到：
+- 每一个episode最多只能坚持64步，并不十分理想。
+- 这个最简单的例子是想告诉大家，强化学习的编程规则：
+	1. action = policy(obs)：根据环境obs做出决策，选择特定的动作action。
+	2. obs, reward = env.step(action)：执行action，返回相应的奖励，以及新的环境变量。
+	3. 跳到step1继续迭代执行，我们的目标是使得长期奖励（long-term rewards）最大化。
+
+## Neural Network Policy
+
+我们现在用Neural Network Policy代替Basic Policy，这时候我们的输入不再是obs[2]这一个环境变量，而是所有的4个环境变量值，我们输出每一个action的概率，由于只有两种action，所以我们只需要一个输出神经元代表action取0即向左走的概率。注意这时候我们并不是取得分最高的action，而是根据神经网络输出的概率值来选择action，这种方法可以让智能体在探索新路径和利用已知运行良好的路径之间找到适当的平衡点，即让智能体具有一定的全局观，因为我们的目的是希望最大化长期奖励，而不是目光短浅的每次都取当前最高得分的action。
+![RL](/img/RL-02.png)
+```
+n_inputs = 4  # 使用所有的环境变量值
+n_hidden = 4  # it's a simple task, we don't need more hidden neurons
+n_outputs = 1  # only outputs the probability of accelerating left
+initializer = tf.contrib.layers.variance_scaling_initializer()
+
+X = tf.placeholder(tf.float32, shape=[None, n_inputs])
+hidden = fully_connected(X, n_hidden, activation_fn=tf.nn.elu, weights_initializer=initializer)
+logits = fully_connected(hidden, n_outputs, activation_fn=None, weights_initializer=initializer)
+outputs = tf.nn.sigmoid(logits)
+# Select a random action based on the estimated probabilities
+p_left_and_right = tf.concat(axis=1, values=[outputs, 1 - outputs])
+# 如果用数组[np.log(0.5), np.log(0.2), np.log(0.3)]，并且num_samples=5，那么该函数将输出5个整数，每个整数以50%概率取0，20%概率取1，30%概率取2
+action = tf.multinomial(tf.log(p_left_and_right), num_samples=1)
+return action
+```
+
+## Evaluating Actions
+
+在我们的平衡车问题中，每一个step的action都会产生一个reward，并且这个reward恒为1，也就是所有action效果一样，但是我们知道每一个step的action的效果有好有坏，比如可能这一步走了一把好棋，直接奠定了胜利的基础，也可能走了一步怀棋，直接埋下了祸根，所以每一个step的action都对以后产生了深远的影响，因此每一个step的action应该有一个score值，用这个score值来衡量这一步action的好坏程度，这个score怎么得来呢？因为每一步的action都对未来的action产生了影响，所以未来的action得到的rewards理应贡献一部分给当前step的action，而且距离越远衰减越厉害（影响越小）。我们可以使用一个超参数discount rate作为衰减系数，一般取值为0.95或0.99。
+![RL](/img/RL-03.png)
+假如现在一个智能体往右走了三步游戏就结束了，分别得到了+10、0、-50的rewards，我们使用discount rate r = 0.8，那么第一个step的action的score值为：10 + r×0 + r^2 × (–50) = –22。当然一个好的action的score可能会由于后面连接了几个坏的action而拉低了分值（猪队友），但是不用担心，只要玩的足够多次，最终来说好的action的score会高于坏的action，为了得到更加可信的score，最后可能还需要对score进行标准化，这样我们就有理由认为负分代表bad actions，正分代表good actions，并且分值越高，action越好。
+
+## Policy Gradients
+
+前面说到，通过评估rewards关于policy参数的梯度，然后通过梯度上升（使rewards最大化）来调整这些参数，这就是policy gradients强化学习算法。也即我们的NN policy的参数训练过程。policy gradients具体算法步骤如下：
+1. 使用neural network policy玩游戏多次，并且在每一步计算action的梯度（仅计算，并不apply gradients）。
+2. 使用discount rate方法计算每一步的action的score。
+3. 如果某个action的score为正，则表示该action是好的，并且我们希望应用之前计算的gradients以使该动作更有可能在将来被选中(梯度下降)。如果score为负，则表示该action很糟糕，并且我们希望应用相反的gradients来使此action在将来稍微不太可能被选中（梯度上升）。解决方案非常简单而且巧妙，直接将每个梯度向量乘以相应的action score。
+4. 最后，计算所有得到的梯度向量的平均值，并使用它来执行梯度下降步骤。
+
+下面我们一起来看下TensorFlow的实现过程，首先构建计算图：
+```
+class TextCNN(object):
+    def __init__(self, config):
+        self.config = config
+
+        self.input_x = tf.placeholder(tf.float32, [None, self.config.n_inputs], name='input_x')
+        self.policy_gradients()
+
+    def policy_gradients(self):
+        initializer = tf.contrib.layers.variance_scaling_initializer()
+        hidden = tf.contrib.layers.fully_connected(self.input_x, 4, activation_fn=tf.nn.elu, weights_initializer=initializer)
+        logits = tf.contrib.layers.fully_connected(hidden, self.config.n_outputs, activation_fn=None, weights_initializer=initializer)
+        outputs = tf.nn.sigmoid(logits)
+        # 计算向左和向右的概率
+        p_left_and_right = tf.concat([outputs, 1 - outputs], axis=1)
+        # 根据概率采样action
+        self.action = tf.multinomial(tf.log(p_left_and_right), num_samples=1)
+        # the target probability must be 1.0 if the chosen action is action 0 (left) and 0.0 if it is action 1 (right)
+        y = 1. - tf.to_float(self.action)
+        # 我们认为选择的action就是最好的action，效果就是让rewards最大化
+        cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=logits)
+        self.loss = tf.reduce_mean(cross_entropy)
+        # 计算梯度
+        optimizer = tf.train.AdamOptimizer(self.config.learning_rate)
+        grads_and_vars = optimizer.compute_gradients(cross_entropy)
+        self.gradients = [grad for grad, variable in grads_and_vars]
+        self.gradient_placeholders = []
+        grads_and_vars_feed = []
+        for grad, variable in grads_and_vars:  # variable是NN policy的参数矩阵W和b（作为整体）的变量名
+            # gradient_placeholder用来传入调整后的梯度值，即gradients * action_score->标准化->平均后的新的梯度值
+            gradient_placeholder = tf.placeholder(tf.float32, shape=grad.get_shape())
+            # Tensor("Placeholder:0", shape=(4, 4), dtype=float32)
+            # Tensor("Placeholder_1:0", shape=(4,), dtype=float32)
+            # Tensor("Placeholder_2:0", shape=(4, 1), dtype=float32)
+            # Tensor("Placeholder_3:0", shape=(1,), dtype=float32)
+            print(gradient_placeholder)  # 同grad的shape
+            self.gradient_placeholders.append(gradient_placeholder)
+            # 将调整后的梯度值feed给优化器，以执行优化
+            grads_and_vars_feed.append((gradient_placeholder, variable))
+        self.training_op = optimizer.apply_gradients(grads_and_vars_feed)
+```
+模型训练：
+```
+for iteration in range(config.n_iterations):
+    all_rewards = []  # all sequences of raw rewards for each episode
+    all_gradients = []  # gradients saved at each step of each episode
+    all_loss = []
+    for game in range(config.n_games_per_update):
+        current_rewards = []  # all raw rewards from the current episode
+        current_gradients = []  # all gradients from the current episode
+        current_loss = []
+
+        obs = env.reset()
+        for step in range(config.n_max_steps):
+            action_val, gradients_val, loss_val = sess.run(
+                [model.action, model.gradients, model.loss],
+                feed_dict={model.input_x: obs.reshape(1, config.n_inputs)})  # one obs
+            obs, reward, done, info = env.step(action_val[0][0])
+            # env.render()  # render方法比较耗时
+            current_rewards.append(reward)
+            current_gradients.append(gradients_val)
+            current_loss.append(loss_val)
+
+            if done:
+                break
+        all_rewards.append(current_rewards)
+        all_gradients.append(current_gradients)
+        all_loss.append(current_loss)
+
+    # At this point we have run the policy for 10 episodes, and we are ready for a policy update using the algorithm described earlier.
+    all_rewards_discount = discount_and_normalize_rewards(all_rewards, config.discount_rate)
+    feed_dict = {}
+    for var_index, grad_placeholder in enumerate(model.gradient_placeholders):
+        # multiply the gradients by the action scores, and compute the mean
+        compute_gradients = []  # W1:[n_games_per_update, 4, 4] b1:[n_games_per_update, 4] W2:[n_games_per_update, 4, 1] b2:[n_games_per_update, 1]
+        for game_index, rewards in enumerate(all_rewards_discount):
+            for step, reward in enumerate(rewards):
+                compute_gradient = reward * all_gradients[game_index][step][var_index]
+                compute_gradients.append(compute_gradient)
+        mean_gradients = np.mean(compute_gradients, axis=0)  # 按位取平均
+        # 下面是一步到位的写法，可读性较差
+        # mean_gradients = np.mean(
+        #     [reward * all_gradients[game_index][step][var_index]
+        #      for game_index, rewards in enumerate(all_rewards)
+        #      for step, reward in enumerate(rewards)],
+        #     axis=0)
+        # print(mean_gradients)
+        feed_dict[grad_placeholder] = mean_gradients
+    sess.run(model.training_op, feed_dict=feed_dict)
+```
+
+## Q-learning
+
+
+
+
+
+
+
 
 
 # 模型训练
 
-代码地址 <a href="https://github.com/qianshuang/seq2seq" target="_blank">https://github.com/qianshuang/seq2seq</a>
-```
-
-```
+代码地址 <a href="https://github.com/qianshuang/rl_exp" target="_blank">https://github.com/qianshuang/rl_exp</a>
 
 运行结果：
 ```
 Configuring model...
-Loading data...
+Tensor("Placeholder:0", shape=(4, 4), dtype=float32)
+Tensor("Placeholder_1:0", shape=(4,), dtype=float32)
+Tensor("Placeholder_2:0", shape=(4, 1), dtype=float32)
+Tensor("Placeholder_3:0", shape=(1,), dtype=float32)
 Training and evaluating...
-Epoch: 1
-Iter:      0, Train Loss:    3.4, Val Loss:    3.4, Time: 0:00:02 *
-Epoch: 2
-Iter:     10, Train Loss:    3.4, Val Loss:    3.4, Time: 0:00:04 *
-Epoch: 3
-Iter:     20, Train Loss:    3.3, Val Loss:    3.3, Time: 0:00:07 *
-Epoch: 4
-Iter:     30, Train Loss:    3.1, Val Loss:    3.1, Time: 0:00:10 *
-Epoch: 5
-Epoch: 6
-Iter:     40, Train Loss:    3.0, Val Loss:    3.0, Time: 0:00:12 *
-Epoch: 7
-Iter:     50, Train Loss:    3.0, Val Loss:    3.0, Time: 0:00:15 *
-Epoch: 8
-Iter:     60, Train Loss:    2.8, Val Loss:    2.9, Time: 0:00:17 *
-......
-......
-Epoch: 314
-Iter:   2510, Train Loss:  0.091, Val Loss:    0.4, Time: 0:07:56 
-Epoch: 315
-Epoch: 316
-Iter:   2520, Train Loss:  0.078, Val Loss:    0.4, Time: 0:07:56 
-No optimization for a long time, auto-stopping...
-Testing...
-原始输入:  common
-输出: cmmmoo<EOS>
+Iter:      1, Train Loss:   0.65, Avg Steps:   15.5,Time: 0:00:00
+Iter:      2, Train Loss:   0.69, Avg Steps:   15.3,Time: 0:00:00
+Iter:      3, Train Loss:   0.68, Avg Steps:   18.5,Time: 0:00:01
+Iter:      4, Train Loss:   0.67, Avg Steps:   23.3,Time: 0:00:01
+······
+······
+Iter:     98, Train Loss:    0.6, Avg Steps:  149.4,Time: 0:01:34
+Iter:     99, Train Loss:    0.6, Avg Steps:  148.8,Time: 0:01:35
+Iter:    100, Train Loss:   0.59, Avg Steps:  186.3,Time: 0:01:37
 ```
 
 # 社群
