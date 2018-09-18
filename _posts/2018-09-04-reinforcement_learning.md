@@ -14,6 +14,7 @@ tags:								#标签
 
 强化学习其实是独立于机器学习和深度学习的一门学科，既不属于有监督学习，也不属于无监督学习。在强化学习中，智能体（agent）在环境（environment）中进行观察（observe）并采取行动（action），它会收到奖励（reward）作为回报。其目标是学会以最大化其预期的长期奖励（long-term rewards）行事。
 agent用来确定其action的算法称为其策略（policy）。例如该policy可以是将观察observation作为输入并输出要采取的动作action的神经网络。通过评估rewards关于policy参数的梯度，然后通过梯度上升（使rewards最大化）来调整这些参数，这就是policy gradients强化学习算法。
+but，强化学习的训练很多时候是很不稳定的，并且算法本身存在高方差，难优化等问题，还有强化学习的reward的设计，环境建模，也是比较大的问题。
 
 ## OpenAI Gym
 
@@ -114,7 +115,7 @@ return action
 ![RL](/img/RL-03.png)
 假如现在一个智能体往右走了三步游戏就结束了，分别得到了+10、0、-50的rewards，我们使用discount rate r = 0.8，那么第一个step的action的score值为：10 + r×0 + r^2 × (–50) = –22。当然一个好的action的score可能会由于后面连接了几个坏的action而拉低了分值（猪队友），但是不用担心，只要玩的足够多次，最终来说好的action的score会高于坏的action，为了得到更加可信的score，最后可能还需要对score进行标准化，这样我们就有理由认为负分代表bad actions，正分代表good actions，并且分值越高，action越好。
 
-## Policy Gradients
+## Policy Gradients with Gradients*aciton_scores form
 
 前面说到，通过评估rewards关于policy参数的梯度，然后通过梯度上升（使rewards最大化）来调整这些参数，这就是policy gradients强化学习算法。也即我们的NN policy的参数训练过程。policy gradients具体算法步骤如下：
 1. 使用neural network policy玩游戏多次，并且在每一步计算action的梯度（仅计算，并不apply gradients）。
@@ -214,6 +215,72 @@ for iteration in range(config.n_iterations):
     sess.run(model.training_op, feed_dict=feed_dict)
 ```
 
+## Policy Gradients with loss*aciton_scores form
+
+下面的方法在上面的基础上稍加简化，每一个epoch训练一次，并且通过action_score的正负向来指导neg_log_prob，与通过action_score的正负向来指导梯度更新是一样的效果。<br>
+构建计算图：
+```
+class TextCNN(object):
+    def __init__(self, config):
+        self.config = config
+
+        self.input_x = tf.placeholder(tf.float32, [None, self.config.n_inputs], name='input_x')
+        self.input_actions = tf.placeholder(tf.int32, [None, ], name='input_actions')
+        self.input_action_scores = tf.placeholder(tf.float32, [None, ], name="input_action_scores")
+        self.policy_gradients()
+
+    def policy_gradients(self):
+        initializer = tf.contrib.layers.variance_scaling_initializer()
+        hidden = tf.contrib.layers.fully_connected(self.input_x, 4, activation_fn=tf.nn.elu, weights_initializer=initializer)
+        logits = tf.contrib.layers.fully_connected(hidden, self.config.n_outputs, activation_fn=None, weights_initializer=initializer)
+        self.outputs = tf.nn.softmax(logits)
+
+        # 我们认为选择的action就是最好的action
+        neg_log_prob = tf.reduce_sum(-tf.log(self.outputs) * tf.one_hot(self.input_actions, self.config.n_outputs), axis=1)
+        # 或者是用下面的方式，两种方式等价
+        # neg_log_prob = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=self.input_actions)
+        # reward guided loss，这里通过action_score的正负向来指导neg_log_prob，与通过action_score的正负向来指导梯度更新是一样的效果
+        self.loss = tf.reduce_mean(neg_log_prob * self.input_action_scores)
+        self.train_op = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss)
+```
+模型训练：
+```
+for iteration in range(config.n_iterations):
+    all_rewards = []  # all raw rewards from the current episode
+    all_actions = []
+    all_inputs = []
+
+    obs = env.reset()
+
+    while True:
+        inputs = obs.reshape(1, config.n_inputs)
+        action_prob = sess.run(
+            [model.outputs],
+            feed_dict={model.input_x: inputs})  # one obs
+        a = [i for i in range(len(np.array(action_prob).ravel()))]
+        p = np.array(action_prob).ravel()
+        action = np.random.choice(a, p=p)
+        obs_, reward, done, info = env.step(action)
+        # env.render()  # render方法比较耗时
+        all_rewards.append(reward)
+        all_actions.append(action)
+        all_inputs.append(inputs)
+
+        if done:
+            # 每一个epoch都进行训练
+            discounted_ep_rs_norm = discount_and_normalize_rewards([all_rewards], config.discount_rate)[0]
+            # train on episode
+            loss, _ = sess.run([model.loss, model.train_op], feed_dict={
+                model.input_x: np.vstack(all_inputs),
+                model.input_actions: all_actions,  # shape=[None, ]
+                model.input_action_scores: discounted_ep_rs_norm,  # shape=[None, ]
+            })
+
+            break
+
+        obs = obs_
+```
+
 ## 马尔科夫决策过程
 
 马尔科夫决策过程（Markov Decision Processes，MDP），即在马尔科夫网络的基础上加入了动作（action）和奖励（rewards）。
@@ -289,10 +356,6 @@ for iteration in range(n_iterations):
     s = sp  # move to next state
 ```
 当迭代次数足够多时，该算法将收敛得到最佳的Q值。
-
-## Deep Q-Learning
-
-用神经网络来估计Q值称为deep Q-network（DQN），并且使用DQN的Q-learning算法称为Deep Q-Learning。
 
 # 模型训练
 
