@@ -35,29 +35,36 @@ tags:								#标签
 	- 随机森林
 	- AdaBoost
 	- GBDT
+	- xgboost
 	- 朴素贝叶斯
+	- 损失函数、梯度下降、最大似然估计、正则化
 	- 逻辑回归
+	- softmax回归
 	- SVM
 	- 最大熵模型
+	- 隐马尔科夫模型
+	- 条件随机场
+	- 期望最大化 & k-means聚类
 	- 机器学习模型部署及在线预测
+	- SimHash算法
+	- 基于传统机器学习的推荐系统(FM、LDA)
 - 深度学习
+	- TensorFlow
 	- 全连接神经网络
+	- 神经网络训练技巧
+	- word2vec & fasttext
 	- 卷积神经网络
+	- ContextCNN & HierarchicalCNN
 	- 循环神经网络
-	- hierarchical CNN 分层卷积神经网络
-	- NER 命名实体识别
-	- Attention机制
-	- Attention based CNN在QQ match中的应用
-	- 深度学习模型部署及在线预测
-- 迁移学习
-	- multi-task NER和分类的多任务迁移学习
-	- 基于多语言分类的迁移学习
-	- zero shot & few shot
-- 生成模型
+	- 基于CNN、RNN以及CRF的命名实体识别
+	- 迁移学习(多领域、多语言、多任务)
+	- 生成对抗网络GAN
 	- seq2seq
-	- GAN 生成对抗网络
-- 强化学习
-	- seqGAN 基于GAN和强化学习的文本生成模型 
+	- Attention机制
+	- Autoencoders & 基于深度模型的推荐系统
+	- 强化学习(Policy gradients、DQN)
+	- 使用Deep Q-Learning强化学习算法玩吃豆人游戏
+	- 深度学习模型部署及在线预测
 
 # 社群
 
