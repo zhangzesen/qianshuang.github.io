@@ -67,6 +67,7 @@ tags:								#标签
 	- Autoencoders & 基于深度模型的推荐系统
 	- 强化学习(Policy gradients、DQN)
 	- 使用Deep Q-Learning强化学习算法玩吃豆人游戏
+	- 语义检索DSSM
 	- 深度学习模型部署及在线预测
 
 # 社群
