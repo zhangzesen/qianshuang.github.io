@@ -13,7 +13,7 @@ tags:								#标签
 
 # 模型导出
 
-我们在前面的内容中讲到过，可以使用tf.train.Saver.save()和tf.train.Saver.restore()方法保存和恢复模型变量，但是这只是在模型训练过程中用来做checkpoint，保存的也只是模型的变量。只有导出整个模型（除了模型变量、还包括模型计算图和图的元数据），才能做模型部署和在线预测，这时就必须使用SavedModel来保存和加载模型。使用SavedModel做模型导出的代码如下：
+我们在前面的内容中讲到过，可以使用tf.train.Saver.save()和tf.train.Saver.restore()方法保存和恢复模型变量，但是这只是在模型训练过程中用来做checkpoint，保存的也只是模型的变量。只有导出整个模型（除了模型变量、还包括模型计算图和图的元数据），才能做模型部署和在线预测，这时就必须使用SavedModel（也可以导出Session Bundle，但是TensorFlow1.0后被废弃）来保存和加载模型。使用SavedModel做模型导出的代码如下：
 ```
 print('Configuring CNN model...')
 config = TCNNConfig()
@@ -92,6 +92,7 @@ tensorflow_model_server --port=port-numbers --model_name=your-model-name --model
 - port：指定RPC服务监听端口号。
 - model_name：自定义模型名。
 - model_base_path：所导出的模型文件所在目录。
+这里推荐使用阿里云的EAS平台做深度学习模型部署，支持弹性部署和在线扩容。
 
 # 在线预测
 
@@ -115,7 +116,7 @@ example.features.feature['x'].float_list.value.extend(image[0].astype(float))
 result = stub.Classify(request, 10.0)  # 10 secs timeout
 ```
 Java调用：
-Java调用推荐使用阿里云提供的EAS平台，支持弹性部署和在线扩容，并且提供了调用服务的JavaSDK。
+Java调用推荐使用阿里云的EAS平台，它提供了功能强大的调用服务的JavaSDK。
 
 # 社群
 
