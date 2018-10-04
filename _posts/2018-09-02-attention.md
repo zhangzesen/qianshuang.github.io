@@ -73,6 +73,10 @@ atten_output = tf.reduce_sum(tf.multiply(inputs, alpha), axis=1)  #(?, 100)
 ![Attention](/img/Attention-08.png)
 如上图左所示，首先把输入Input经过三个不同的线性变换分别得到Q、K、V，然后把Q和K做dot Product相乘（矩阵乘法），得到输入Input词与词之间的对其关系，然后经过尺度变换（scale）、掩码（mask）和softmax操作，得到最终的Self Attention矩阵。尺度变换是为了防止输入值过大导致训练不稳定，mask则是为了将Padding的内容过滤掉。（有点类似于LSTM的门操作）
 
+# position embedding
+
+position embedding技术在很多任务上表现出了非常不错的效果，一般与CNN配合使用，将每个词出现的位置进行embedding，与Word embedding一起作为输入进行卷积操作。这样使CNN与RNN一样，能够表达位置关系和时序性。
+
 # 模型训练
 
 代码地址 <a href="https://github.com/qianshuang/seq2seq" target="_blank">https://github.com/qianshuang/seq2seq</a>
