@@ -25,7 +25,8 @@ opencv是目前最常用的图像处理库，没有之一，功能全面且非�
 pip3 install opencv-python
 ```
 
-图片读取：
+## 图像读取
+
 ```
 import cv2
 
@@ -59,7 +60,9 @@ uint8
 1. 调用cv2.imread读进来的图片已经是一个numpy矩阵了，矩阵元素就是像素点的值（0~255内的正整数）。
 2. opencv对于读进来的图片的通道排列是BGR，而不是主流的RGB，可以通过cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)转为RGB排列。
 
-在对图片进行卷积操作前，一般需要归一化：
+## 图像归一化
+
+在对图像进行卷积等操作前，一般需要归一化。
 ```
 # img_array = img_array.astype("float") / 255.0  # 这一步可省略
 img_array = img_array / 255.0
@@ -76,7 +79,8 @@ float64
  ]]
 ```
 
-图片存储：
+## 图像存储
+
 ```
 cv2.imwrite('data/test1.jpg', img_array)  # 归一化后得到的是全黑的图片
 cv2.imwrite('data/test2.jpg', img_array * 255)  # 这样就还原了原图片
@@ -84,7 +88,9 @@ cv2.imwrite('data/test2.jpg', img_array * 255)  # 这样就还原了原图片
 
 计算机视觉中有一个专有名词叫ROI（region of interest），感兴趣区域，即从图像中选择一个区域，这个区域是你做图像分析所关注的重点，圈定该区域以便进行进一步处理。使用ROI圈定你想读的目标，可以减少处理时间，增加精度。
 ```
-# roi操作
+
+## roi
+
 roi = img_array[200:550, 100:450, :]
 cv2.imshow('roi', roi)
 
@@ -95,7 +101,7 @@ img_array[:, :, 2] = 0  # 将红色通道值全部设0
 
 # PIL
 
-PIL（Python Imaging Library），也即我们常称的Pillow，是一个很流行的图像库，它比opencv更为轻巧，正因如此，它深受大众的喜爱。安装方式如下：
+PIL（Python Imaging Library），也即我们常称的Pillow，是一个很流行的图像库，它比opencv更为轻巧，正因如此，它深受大众的喜爱。
 ```
 pip3 install Pillow
 ```
@@ -127,7 +133,7 @@ new_im.save('data/test_1.jpg')
 
 # matplotlib
 
-matplotlib是一个科学绘图神器，也是功能全面且强大的图像处理工具。安装方式如下：
+matplotlib是一个科学绘图神器，也是功能全面且强大的图像处理工具。
 ```
 pip3 install matplotlib
 ```
@@ -152,7 +158,7 @@ print(image)
 
 # scipy.misc
 
-SciPy是一个开源的Python算法库和数学工具包，他因为集成了各种丰富且优秀的算法模块而闻名，图像处理只是其中的一个模块。安装：
+SciPy是一个开源的Python算法库和数学工具包，他因为集成了各种丰富且优秀的算法模块而闻名，图像处理只是其中的一个模块。
 ```
 pip3 install scipy
 ```
@@ -174,7 +180,7 @@ misc.imsave('data/test0_1.png', im)  # 图像存储
 
 # skimage
 
-skimage，也即scikit-image，是基于scipy的一款图像处理包。安装：
+skimage，也即scikit-image，是基于scipy的一款图像处理包。
 ```
 pip3 install scikit-image
 ```
