@@ -87,10 +87,10 @@ cv2.imwrite('data/test2.jpg', img_array * 255)  # 这样就还原了原图片
 ```
 
 计算机视觉中有一个专有名词叫ROI（region of interest），感兴趣区域，即从图像中选择一个区域，这个区域是你做图像分析所关注的重点，圈定该区域以便进行进一步处理。使用ROI圈定你想读的目标，可以减少处理时间，增加精度。
-```
 
 ## roi
 
+```
 roi = img_array[200:550, 100:450, :]
 cv2.imshow('roi', roi)
 
@@ -196,7 +196,7 @@ io.imshow(im)
 io.imsave('data/sk.png',im)  # 图像存储
 ```
 
-以上只是图像处理的一些基本用法，其实图像处理还包括很多复杂且有意义的操作，包括滤波、膨胀与腐蚀、边缘检测、霍夫变换、放射变换等，其实可以不用全部掌握，大可在需要用到的时候再具体深入，对症下药。想了解更多内容可以参看这篇博客<a href="https://www.cnblogs.com/skyfsm/default.html?page=5" target="_blank">图像处理方法汇总与实战</a>
+以上只是图像处理的一些基本用法，其实图像处理还包括很多复杂且有意义的操作，包括滤波、膨胀与腐蚀、边缘检测、霍夫变换、放射变换等，其实可以不用全部掌握，大可在需要用到的时候再具体深入，对症下药。想了解更多内容可以参看这篇博客：<a href="https://www.cnblogs.com/skyfsm/default.html?page=5" target="_blank">图像处理方法汇总与实战</a>
 
 代码地址 <a href="https://github.com/qianshuang/CV" target="_blank">https://github.com/qianshuang/CV</a>
 
