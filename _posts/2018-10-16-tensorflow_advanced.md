@@ -1,7 +1,7 @@
 ---
 layout:     post   				    # 使用的布局
 title:      40.0 tensorflow高级特性				# 标题 
-date:       2018-10-19 				# 时间
+date:       2018-10-16 				# 时间
 author:     子颢 						# 作者
 catalog: true 						# 是否归档
 tags:								# 标签
