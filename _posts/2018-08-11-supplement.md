@@ -68,6 +68,7 @@ Mini-batch Gradient Descent综合了批量和随机梯度下降的有点，即�
 ![supplement](/img/supplement-11.png)
 ![supplement](/img/supplement-12.png)
 ![supplement](/img/supplement-13.png)
+一般来说，L1正则化使参数（特征）更加稀疏，导致优化后的参数一部分为0，而另一部分非零实值即是选择后的重要参数（重要特征维度），所以也起到了去除噪声的效果；L2正则化使权重平滑，且这些特征都会接近于较小的0值。这背后的根本原因在于，一般权重值都在(-1,1)之间，w^2远小于w，所以L2正则允许保留较多的权重值。
 
 还有一种用来防止模型过拟合的重要正则化手段是Early Stopping，即一旦模型在验证集上的效果达到最佳（比如1000轮没有效果提升），立即停止训练，否则很可能出现过拟合。
 ![supplement](/img/supplement-14.png)

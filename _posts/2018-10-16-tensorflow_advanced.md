@@ -20,7 +20,7 @@ Colaboratory是google发布的一个托管的Jupyter notebook环境，可以免�
 4. 共享和协同编辑。Colab笔记本存储在Google云端硬盘中，可以通过协作方式进行共享，编辑和评论，只需单击笔记本右上角的“共享”按钮。
 5. GPU硬件加速。默认情况下，Colab笔记本在云端CPU上运行，可以通过Runtime > Change runtime type，然后选择GPU从而使Colab笔记本在云端GPU上运行。
 6. 你也可以参考https://research.google.com/colaboratory/local-runtimes.html说明让Colab笔记本使用你的本地机器硬件，这时Colab有权限直接读写本地文件。
-7. 如果要使用云端资源，需要将本地训练数据上传到云端。
+7. 如果要使用云端资源，需要将本地训练数据上传到云端。<br>
 ```
 from google.colab import files
 

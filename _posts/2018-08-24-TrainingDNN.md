@@ -82,12 +82,12 @@ hidden1 = fully_connected(X, n_hidden1, activation_fn=leaky_relu)
 # Batch Normalization
 
 Batch Normalization也是解决梯度爆炸梯度消失问题的利器，它指出了随着前一层的参数改变，后面每一层的输入的分布在训练期间改变的问题。
-<p></p>
+
 这项技术只是在每一层的线性变换之后，激活函数之前加了一个操作，即先对之做简单的zero-centering并且归一化（通过当前的mini-batch计算平均值和标准差即可），然后使用两个新的参数（训练得到）对结果进行缩放和位移。换句话说，BN操作让模型自己学到每一层最佳的缩放和位移效果。BN算法如下所示：
 ![TrainingDNN](/img/TrainingDNN-04.png)
 ![TrainingDNN](/img/TrainingDNN-05.png)
 注意：在测试和预测时，因为没有mini-batch，所以直接使用整个训练集的均值和方差（可以在训练时通过移动平均值高效计算得到）。
-<p></p>
+
 BN优点有以下几个方面：
 1. 可以有效防止梯度消失和梯度爆炸问题，并且网络越深越有效。
 2. 使得神经网络模型对权重初始化方式不敏感。
