@@ -21,22 +21,21 @@ Colaboratory是google发布的一个托管的Jupyter notebook环境，可以免�
 5. GPU硬件加速。默认情况下，Colab笔记本在云端CPU上运行，可以通过Runtime > Change runtime type，然后选择GPU从而使Colab笔记本在云端GPU上运行。
 6. 你也可以参考https://research.google.com/colaboratory/local-runtimes.html说明让Colab笔记本使用你的本地机器硬件，这时Colab有权限直接读写本地文件。
 7. 如果要使用云端资源，需要将本地训练数据上传到云端。
+	```
+	from google.colab import files
 
-```
-from google.colab import files
+	# 文件上传
+	uploaded = files.upload()
 
-# 文件上传
-uploaded = files.upload()
+	for fn in uploaded.keys():
+	    print('User uploaded file "{name}" with length {length} bytes'.format(name=fn, length=len(uploaded[fn])))
 
-for fn in uploaded.keys():
-    print('User uploaded file "{name}" with length {length} bytes'.format(name=fn, length=len(uploaded[fn])))
+	# 文件下载
+	with open('example.txt', 'w') as f:
+	    f.write('some content')
 
-# 文件下载
-with open('example.txt', 'w') as f:
-    f.write('some content')
-
-files.download('example.txt')
-```
+	files.download('example.txt')
+	```
 注：后面我们的所有案例都将采用Colaboratory。
 
 # keras
